@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
+
+  const navItems = [
+  { name: 'Home', path: '/' },
+  { name: 'Gallery', path: '/gallery' },
+  { name: 'Shop', path: '/shop' },
+  { name: 'Login/Register', path: '/loginRegister' },
+  { name: 'Contact', path: '/contact' }
+];
+ 
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -34,18 +44,18 @@ const HomePage = () => {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex space-x-8">
-              {['Home', 'Gallery', 'Shop', 'Login/Register', 'Contact'].map((item, index) => (
-                <a
-                  key={item}
-                  href="#"
-                  className="relative group px-3 py-2 text-white hover:text-white transition-all duration-300 transform hover:scale-105 font-medium"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  {item}
-                  <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-red-600 to-red-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-                </a>
-              ))}
-            </div>
+  {navItems.map((item, index) => (
+    <Link
+      key={item.name}
+      to={item.path}
+      className="relative group px-3 py-2 text-white hover:text-white transition-all duration-300 transform hover:scale-105 font-medium"
+      style={{ animationDelay: `${index * 100}ms` }}
+    >
+      {item.name}
+      <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-red-600 to-red-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+    </Link>
+  ))}
+</div>
 
             {/* Mobile Menu Button */}
             <button
