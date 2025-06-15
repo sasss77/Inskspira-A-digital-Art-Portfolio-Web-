@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
+
 
 const LoginRes = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [scrollY, setScrollY] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { register, handleSubmit, errors } = useForm();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -34,11 +39,28 @@ const LoginRes = () => {
 
   const onLoginSubmit = (data) => {
     console.log('Login data:', data);
-    // Handle login logic here
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    console.log(data);
+    console.log(storedUser);
+    if (data.email === storedUser.email && data.password === storedUser.password) {
+
+      // Handle login logic here
+      alert("Login Successful");
+      navigate("/");
+    }
+    else if (!(data.email === storedUser.email) && data.password === storedUser.password) {
+      alert("Invalid Email");
+    }
+    else { 
+      alert("Invalid Password");
+    }
   };
 
   const onSignupSubmit = (data) => {
+    localStorage.setItem("user", JSON.stringify(data));
+    alert("Signup successful");
     console.log('Signup data:', data);
+   
     // Handle signup logic here
   };
 
