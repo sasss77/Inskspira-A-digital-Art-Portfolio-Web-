@@ -4,6 +4,7 @@ const {
   saveAllEmployee,
   updateEmployeeById,
   deleteById,
+  getUserById,
 } = require("../controller/userController");
 
 const router = express.Router();
@@ -12,5 +13,6 @@ router.get("/users", getAllEmployee);
 router.post("/users", saveAllEmployee);
 router.patch("/users/:id", updateEmployeeById);
 router.delete("/users/:id", deleteById);
+router.get("/users/:id", getUserById);
 
 module.exports = router;

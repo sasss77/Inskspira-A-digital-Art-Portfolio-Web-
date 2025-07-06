@@ -13,13 +13,13 @@ const getAllEmployee = async (req, res) => {
 
 //Create
 const saveAllEmployee = async (req, res) => {
-  const { username, userID, email, password } = req.body;
+  const { username, email, password } = req.body;
   try {
-    const user = await Users.findOne({ where: { userID } });
+    const user = await Users.findOne({ where: { email } });
     if (user) {
       return res.status(409).json({ message: "User already present" });
     }
-    await Users.create({ username, userID, email, password });
+    await Users.create({ username, email, password });
     res.status(201).json({ message: "User added successfully" });
   } catch (error) {
     console.log(error);
@@ -60,9 +60,25 @@ const deleteById = async (req, res) => {
   }
 };
 
+//get user by id
+const getUserById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await Users.findOne({ where: { id } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ data: user, message: "User fetched successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error fetching user" });
+  }
+};
+
 module.exports = {
   getAllEmployee,
   saveAllEmployee,
   updateEmployeeById,
   deleteById,
+  getUserById,
 };
