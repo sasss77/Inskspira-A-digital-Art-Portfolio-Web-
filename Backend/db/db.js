@@ -18,7 +18,7 @@ const db = () => {
     sequelize.sync({ alter: true });
     console.log("database connected successfully");
   } catch (e) {
-    console.error("fail to connect database successfully", e);
+    console.error("fail to connect database ", e);
   }
 };
 
