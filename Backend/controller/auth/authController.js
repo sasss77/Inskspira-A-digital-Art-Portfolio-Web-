@@ -1,52 +1,52 @@
+const { generateToken } = require("../../security/jwt-util");
+const Users = require("../../model/userSchemas");
 
+const registerUser = async (req, res) => {
+  const { username, email, password } = req.body;
 
-const Users = require("../../model/userSchemas.js");
-const generateToken = require("../../security/jwt-util.js");
-
-const login = async (req, res) => {
   try {
-    //fetching all the data from users table
-    if (req.body.email == null) {
-      return res.status(500).send({ message: "email is required" });
+    const existingUser = await Users.findOne({ where: { email } });
+
+    if (existingUser) {
+      return res.status(409).json({ message: "User already exists" });
     }
-    if (req.body.password == null) {
-      return res.status(500).send({ message: "password is required" });
-    }
-    const user = await Users.findOne({ where: { email: req.body.email } });
-    if (!user) {
-      return res.status(500).send({ message: "user not found" });
-    }
-    if (user.password == req.body.password) {
-      const token = generateToken({ user: user.toJSON() });
-      return res.status(200).send({
-        data: { access_token: token },
-        message: "successfully logged in",
-      });
-    }
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ error: "Failed to login" });
+
+    const newUser = await Users.create({ username, email, password });
+
+    return res.status(201).json({
+      message: "User registered successfully",
+      user: newUser,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error during registration" });
   }
 };
 
-/**
- *  init
- */
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
 
-const init = async (req, res) => {
   try {
-    const user = req.user.user;
-    delete user.password;
-    res
-      .status(201)
-      .send({ data: user, message: "successfully fetched current  user" });
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ error: "Failed to fetch users" });
+    const user = await Users.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.password !== password) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = generateToken({ userID: user.userID, email: user.email });
+
+    return res.status(200).json({ message: "Login successful", token });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error during login" });
   }
 };
 
 module.exports = {
-  login,
-  init,
+  registerUser,
+  loginUser,
 };
