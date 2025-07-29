@@ -29,28 +29,38 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="nav-link group">
+          <nav className="hidden md:flex items-center space-x-8 relative">
+            <Link
+              to="/"
+              className="header-gradient-nav header-gradient-purple group"
+            >
               <span>Gallery</span>
-              <div className="nav-underline"></div>
+              <div className="gradient-underline group-hover:w-full"></div>
             </Link>
-            
+
             {user?.role === 'artist' && (
-              <Link to="/upload" className="nav-link group">
-                <span>Upload</span>
-                <div className="nav-underline"></div>
+              <Link
+                to="/upload"
+                className="nav-link text-gray-300 hover:text-white font-semibold transition-colors duration-300"
+              >
+                Upload
               </Link>
             )}
-            
-            <Link to="/search" className="nav-link group">
+
+            <Link
+              to="/search"
+              className="header-gradient-nav header-gradient-blue group"
+            >
               <span>Discover</span>
-              <div className="nav-underline"></div>
+              <div className="gradient-underline group-hover:w-full"></div>
             </Link>
-            
+
             {user && (
-              <Link to="/favorites" className="nav-link group">
-                <span>Favorites</span>
-                <div className="nav-underline"></div>
+              <Link
+                to="/favorites"
+                className="nav-link text-gray-300 hover:text-white font-semibold transition-colors duration-300"
+              >
+                Favorites
               </Link>
             )}
           </nav>
@@ -59,27 +69,36 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
-                <Link to="/profile" className="group flex items-center space-x-2 bg-gray-800/50 hover:bg-gray-700/50 px-4 py-2 rounded-full transition-all duration-300 border border-gray-700 hover:border-purple-500/50">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-semibold text-sm group-hover:scale-110 transition-transform duration-300">
+                <Link
+                  to="/profile"
+                  className="group flex items-center bg-gray-800/50 hover:bg-gray-700/50 px-4 py-2 rounded-full transition-all duration-300 border border-gray-700 hover:border-purple-500/70"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold text-sm">
                     {user.username?.[0]?.toUpperCase()}
                   </div>
-                  <span className="text-gray-300 group-hover:text-white transition-colors duration-300">
+                  <span className="ml-2 text-gray-300 group-hover:text-white transition-colors duration-300">
                     {user.username}
                   </span>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 px-4 py-2 rounded-full transition-all duration-300 border border-red-500/30 hover:border-red-500/50"
+                  className="bg-red-600 bg-opacity-20 hover:bg-opacity-30 text-red-400 hover:text-red-300 px-4 py-2 rounded-full transition-colors duration-300 border border-red-600 hover:border-red-400"
                 >
                   Logout
                 </button>
               </div>
             ) : (
               <div className="flex items-center space-x-3">
-                <Link to="/login" className="text-gray-300 hover:text-white transition-colors duration-300">
+                <Link
+                  to="/login"
+                  className="text-gray-300 hover:text-white font-semibold transition-colors duration-300"
+                >
                   Login
                 </Link>
-                <Link to="/signup" className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25">
+                <Link
+                  to="/signup"
+                  className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-pink-500 hover:to-purple-600 text-white font-semibold px-6 py-2 rounded-full shadow-lg transition-transform duration-300 hover:scale-105"
+                >
                   Join
                 </Link>
               </div>
@@ -90,38 +109,76 @@ const Header = () => {
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors duration-300"
+            aria-label="Toggle mobile menu"
           >
             <div className="w-6 h-6 flex flex-col justify-center items-center">
-              <span className={`block w-5 h-0.5 bg-gray-300 transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></span>
-              <span className={`block w-5 h-0.5 bg-gray-300 mt-1 transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`}></span>
-              <span className={`block w-5 h-0.5 bg-gray-300 mt-1 transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></span>
+              <span
+                className={`block w-5 h-0.5 bg-gray-300 rounded transition-transform duration-300 ${
+                  isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''
+                }`}
+              ></span>
+              <span
+                className={`block w-5 h-0.5 bg-gray-300 rounded my-1 transition-opacity duration-300 ${
+                  isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
+                }`}
+              ></span>
+              <span
+                className={`block w-5 h-0.5 bg-gray-300 rounded transition-transform duration-300 ${
+                  isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''
+                }`}
+              ></span>
             </div>
           </button>
         </div>
 
         {/* Mobile Menu */}
-        <div className={`md:hidden transition-all duration-300 overflow-hidden ${isMobileMenuOpen ? 'max-h-96 pb-4' : 'max-h-0'}`}>
-          <nav className="flex flex-col space-y-4 pt-4 border-t border-gray-700">
-            <Link to="/" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
-              Gallery
+        <div
+          className={`md:hidden transition-max-height duration-300 overflow-hidden ${
+            isMobileMenuOpen ? 'max-h-96' : 'max-h-0'
+          } bg-gray-900 bg-opacity-95 border-t border-purple-500/20`}
+        >
+          <nav className="flex flex-col px-4 py-6 space-y-4">
+            <Link
+              to="/"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="header-gradient-nav header-gradient-purple group"
+            >
+              <span>Gallery</span>
+              <div className="gradient-underline group-hover:w-full"></div>
             </Link>
             {user?.role === 'artist' && (
-              <Link to="/upload" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link
+                to="/upload"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-gray-300 hover:text-white font-semibold transition-colors duration-300"
+              >
                 Upload
               </Link>
             )}
-            <Link to="/search" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
-              Discover
+            <Link
+              to="/search"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="header-gradient-nav header-gradient-blue group"
+            >
+              <span>Discover</span>
+              <div className="gradient-underline group-hover:w-full"></div>
             </Link>
             {user && (
-              <Link to="/favorites" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
+              <Link
+                to="/favorites"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-gray-300 hover:text-white font-semibold transition-colors duration-300"
+              >
                 Favorites
               </Link>
             )}
-            
             {user ? (
-              <div className="flex flex-col space-y-3 pt-4 border-t border-gray-700">
-                <Link to="/profile" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
+              <>
+                <Link
+                  to="/profile"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-gray-300 hover:text-white font-semibold transition-colors duration-300"
+                >
                   Profile
                 </Link>
                 <button
@@ -129,36 +186,77 @@ const Header = () => {
                     handleLogout();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="text-left text-red-400 hover:text-red-300 py-2 transition-colors duration-300"
+                  className="text-red-400 hover:text-red-300 font-semibold transition-colors duration-300 text-left"
                 >
                   Logout
                 </button>
-              </div>
+              </>
             ) : (
-              <div className="flex flex-col space-y-3 pt-4 border-t border-gray-700">
-                <Link to="/login" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
+              <>
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-gray-300 hover:text-white font-semibold transition-colors duration-300"
+                >
                   Login
                 </Link>
-                <Link to="/signup" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
+                <Link
+                  to="/signup"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="bg-gradient-to-r from-purple-600 to-pink-500 hover:from-pink-500 hover:to-purple-600 text-white font-semibold px-6 py-2 rounded-full shadow-lg transition-transform duration-300 hover:scale-105 text-center"
+                >
                   Join
                 </Link>
-              </div>
+              </>
             )}
           </nav>
         </div>
       </div>
 
-      <style jsx>{`
-        .nav-link {
-          @apply text-gray-300 hover:text-white transition-all duration-300 relative py-2;
+      {/* --- Animations & Styles --- */}
+      <style>{`
+        .header-gradient-nav {
+          position: relative;
+          font-weight: 600;
+          padding-bottom: 4px;
+          transition: color 0.3s;
         }
-        
-        .nav-underline {
-          @apply absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 group-hover:w-full transition-all duration-300;
+        .header-gradient-purple {
+          background: linear-gradient(90deg, #8b5cf6, #ec4899);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
-        
-        .mobile-nav-link {
-          @apply text-gray-300 hover:text-white py-2 transition-colors duration-300 border-l-2 border-transparent hover:border-purple-500 pl-4;
+        .header-gradient-purple:hover {
+          opacity: 0.85;
+          filter: drop-shadow(0 0 8px #a21caf99);
+        }
+        .header-gradient-blue {
+          background: linear-gradient(90deg, #3b82f6, #6366f1);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .header-gradient-blue:hover {
+          opacity: 0.9;
+          filter: drop-shadow(0 0 8px #2563eb88);
+        }
+        .gradient-underline {
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          height: 3px;
+          width: 0;
+          border-radius: 2px;
+          opacity: 0.9;
+          background: linear-gradient(90deg, #8b5cf6,#ec4899);
+          transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+        }
+        .header-gradient-blue .gradient-underline {
+          background: linear-gradient(90deg, #3b82f6, #6366f1);
+        }
+        .group:hover .gradient-underline {
+          width: 100%;
         }
       `}</style>
     </header>
@@ -166,3 +264,4 @@ const Header = () => {
 };
 
 export default Header;
+    

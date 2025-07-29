@@ -1,10 +1,38 @@
 // src/components/common/Footer.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Github, Twitter, Instagram, Palette } from 'lucide-react';
 
 const Footer = () => {
+  const socialLinks = [
+    { 
+      name: 'github', 
+      icon: Github, 
+      href: 'https://github.com/inkspira',
+      hoverColor: 'hover:text-gray-300'
+    },
+    { 
+      name: 'twitter', 
+      icon: Twitter, 
+      href: 'https://twitter.com/inkspira',
+      hoverColor: 'hover:text-blue-400'
+    },
+    { 
+      name: 'instagram', 
+      icon: Instagram, 
+      href: 'https://instagram.com/inkspira',
+      hoverColor: 'hover:text-pink-400'
+    },
+    { 
+      name: 'behance', 
+      icon: Palette, // Using Palette as Behance alternative
+      href: 'https://behance.net/inkspira',
+      hoverColor: 'hover:text-purple-400'
+    }
+  ];
+
   return (
-    <footer className="bg-gray-900 border-t border-purple-500/20 mt-auto">
+    <footer className="bg-gray-900 border-t border-purple-500/20 mt-auto relative">
       {/* Gradient Line */}
       <div className="h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500"></div>
       
@@ -25,19 +53,26 @@ const Footer = () => {
               Discover and share extraordinary digital art. Connect with artists worldwide and build your creative community.
             </p>
             
-            {/* Social Links */}
+            {/* Social Links with Lucide Icons */}
             <div className="flex space-x-4">
-              {['github', 'twitter', 'instagram', 'behance'].map((social) => (
-                <a
-                  key={social}
-                  href="#"
-                  className="w-10 h-10 bg-gray-800/50 hover:bg-gray-700/50 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-purple-500/25 border border-gray-700 hover:border-purple-500/50"
-                >
-                  <span className="text-gray-400 hover:text-purple-400 transition-colors duration-300 capitalize text-sm">
-                    {social[0]}
-                  </span>
-                </a>
-              ))}
+              {socialLinks.map((social) => {
+                const IconComponent = social.icon;
+                return (
+                  <a
+                    key={social.name}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-gray-800/50 hover:bg-gray-700/50 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-purple-500/25 border border-gray-700 hover:border-purple-500/50 group"
+                    aria-label={`Visit our ${social.name}`}
+                  >
+                    <IconComponent 
+                      size={18} 
+                      className={`text-gray-400 ${social.hoverColor} transition-colors duration-300`}
+                    />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
@@ -76,8 +111,7 @@ const Footer = () => {
               {[
                 { name: 'About', path: '/about' },
                 { name: 'Guidelines', path: '/guidelines' },
-                { name: 'Support', path: '/support' },
-                { name: 'Contact', path: '/contact' }
+             
               ].map((link) => (
                 <li key={link.name}>
                   <Link
@@ -113,41 +147,10 @@ const Footer = () => {
 
       {/* Floating Particles Effect */}
       <div className="absolute bottom-0 left-0 w-full h-32 overflow-hidden pointer-events-none">
-        <div className="particle particle-1"></div>
-        <div className="particle particle-2"></div>
-        <div className="particle particle-3"></div>
+        <div className="footer-particle footer-particle-1"></div>
+        <div className="footer-particle footer-particle-2"></div>
+        <div className="footer-particle footer-particle-3"></div>
       </div>
-
-      <style jsx>{`
-        .particle {
-          @apply absolute w-2 h-2 bg-purple-500 rounded-full opacity-20;
-          animation: float 6s ease-in-out infinite;
-        }
-        
-        .particle-1 {
-          left: 20%;
-          animation-delay: 0s;
-        }
-        
-        .particle-2 {
-          left: 50%;
-          animation-delay: 2s;
-        }
-        
-        .particle-3 {
-          left: 80%;
-          animation-delay: 4s;
-        }
-        
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px) scale(1);
-          }
-          50% {
-            transform: translateY(-20px) scale(1.1);
-          }
-        }
-      `}</style>
     </footer>
   );
 };
