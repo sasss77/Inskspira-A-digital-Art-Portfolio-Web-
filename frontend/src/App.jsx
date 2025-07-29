@@ -17,6 +17,13 @@ import UploadPage from './pages/UploadPage';
 import FavoritesPage from './pages/FavoritesPage';
 import FollowingPage from './pages/FollowingPage';
 import SearchPage from './pages/SearchPage';
+import PrivacyPage from './pages/PrivacyPage';
+import TermsPage from './pages/TermsPage';
+import CookiesPage from './pages/CookiesPage';
+
+
+import AboutPage from './pages/AboutPage';
+import GuidelinesPage from './pages/GuidelinesPage';
 
 function App() {
   return (
@@ -24,67 +31,75 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
-            {/* Public Routes */}
+            {/* Public Routes - Always Accessible */}
             <Route path="/" element={<HomePage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/artwork/:artworkId" element={<ArtworkPage />} />
             <Route path="/profile/:userId" element={<ProfilePage />} />
 
-            {/* Auth Routes (redirect if logged in) */}
-            <Route 
-              path="/login" 
+            {/* Legal Pages - Always Accessible */}
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/cookies" element={<CookiesPage />} />
+
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/guidelines" element={<GuidelinesPage />} />
+
+            {/* Auth Routes - Redirect if Already Logged In */}
+            <Route
+              path="/login"
               element={
                 <PublicRoute>
                   <LoginPage />
                 </PublicRoute>
-              } 
+              }
             />
-            <Route 
-              path="/signup" 
+            <Route
+              path="/signup"
               element={
                 <PublicRoute>
                   <SignupPage />
                 </PublicRoute>
-              } 
+              }
             />
 
-            {/* Protected Routes */}
-            <Route 
-              path="/favorites" 
+            {/* Protected Routes - Require Authentication */}
+            <Route
+              path="/favorites"
               element={
                 <ProtectedRoute>
                   <FavoritesPage />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/following" 
+            <Route
+              path="/following"
               element={
                 <ProtectedRoute>
                   <FollowingPage />
                 </ProtectedRoute>
-              } 
+              }
             />
 
-            {/* Artist Only Routes */}
-            <Route 
-              path="/upload" 
+            {/* Artist Only Routes - Require Artist Role */}
+            <Route
+              path="/upload"
               element={
                 <ProtectedRoute requireRole="artist">
                   <UploadPage />
                 </ProtectedRoute>
-              } 
+              }
             />
-            <Route 
-              path="/artwork/:artworkId/edit" 
+            <Route
+              path="/artwork/:artworkId/edit"
               element={
                 <ProtectedRoute requireRole="artist">
-                  <ArtworkPage />
+                  <UploadPage />
                 </ProtectedRoute>
-              } 
+              }
             />
 
-            {/* Catch all - redirect to home */}
+            {/* Catch All - Redirect to Home */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
