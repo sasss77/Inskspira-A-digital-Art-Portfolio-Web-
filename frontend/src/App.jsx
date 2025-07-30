@@ -24,6 +24,7 @@ import CookiesPage from './pages/CookiesPage';
 
 import AboutPage from './pages/AboutPage';
 import GuidelinesPage from './pages/GuidelinesPage';
+import OwnProfileRedirect from './components/common/OwnProfileRedirect';
 
 function App() {
   return (
@@ -95,6 +96,15 @@ function App() {
               element={
                 <ProtectedRoute requireRole="artist">
                   <UploadPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <OwnProfileRedirect />
                 </ProtectedRoute>
               }
             />
