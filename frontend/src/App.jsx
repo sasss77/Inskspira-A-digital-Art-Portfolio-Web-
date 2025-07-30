@@ -25,6 +25,7 @@ import CookiesPage from './pages/CookiesPage';
 import AboutPage from './pages/AboutPage';
 import GuidelinesPage from './pages/GuidelinesPage';
 import OwnProfileRedirect from './components/common/OwnProfileRedirect';
+import NotFoundPage from './pages/NotFoundPage';  
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
 
             <Route path="/about" element={<AboutPage />} />
             <Route path="/guidelines" element={<GuidelinesPage />} />
+            <Route path="*" element={<NotFoundPage />} />
 
             {/* Auth Routes - Redirect if Already Logged In */}
             <Route
