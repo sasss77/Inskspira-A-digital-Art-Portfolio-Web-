@@ -7,6 +7,7 @@ import FavoriteButton from '../interaction/FavoriteButton';
 import CommentSection from '../interaction/CommentSection';
 import Loading from '../common/Loading';
 import Button from '../common/Button';
+import ReportDialog from '../common/ReportDialog'; // <-- Import ReportDialog
 
 const ArtworkDetail = () => {
   const { artworkId } = useParams();
@@ -17,27 +18,29 @@ const ArtworkDetail = () => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [relatedArtworks, setRelatedArtworks] = useState([]);
 
+  // State for Report Modal
+  const [showReport, setShowReport] = useState(false);
+
   useEffect(() => {
     fetchArtworkDetail();
+    // eslint-disable-next-line
   }, [artworkId]);
 
   const fetchArtworkDetail = async () => {
     try {
-      // API call to fetch artwork details
-      // const response = await artworkService.getArtworkById(artworkId);
-      
       // Simulate API call
       setTimeout(() => {
         setArtwork({
           id: artworkId,
           title: 'Mystic Digital Landscape',
-          description: 'A breathtaking digital landscape that captures the essence of a mystical forest at twilight. This piece explores the intersection of nature and fantasy, using vibrant purples and ethereal lighting to create an otherworldly atmosphere.',
+          description:
+            'A breathtaking digital landscape that captures the essence of a mystical forest at twilight. This piece explores the intersection of nature and fantasy, using vibrant purples and ethereal lighting to create an otherworldly atmosphere.',
           imageUrl: `/api/placeholder/800/1000`,
           artist: {
             id: 1,
             username: 'DigitalDreamer',
             profileImage: null,
-            followerCount: 1247
+            followerCount: 1247,
           },
           createdAt: '2024-01-15T10:30:00Z',
           likeCount: 256,
@@ -49,13 +52,13 @@ const ArtworkDetail = () => {
           dimensions: '3840x4800px',
           fileSize: '12.4 MB',
           software: 'Photoshop, Procreate',
-          isOwn: user?.id === 1
+          isOwn: user?.id === 1, // Simulate with current user
         });
 
         setRelatedArtworks([
           { id: 2, title: 'Forest Dreams', imageUrl: '/api/placeholder/300/380' },
           { id: 3, title: 'Digital Sunset', imageUrl: '/api/placeholder/300/360' },
-          { id: 4, title: 'Purple Haze', imageUrl: '/api/placeholder/300/400' }
+          { id: 4, title: 'Purple Haze', imageUrl: '/api/placeholder/300/400' },
         ]);
 
         setLoading(false);
@@ -70,20 +73,25 @@ const ArtworkDetail = () => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this artwork?')) {
       try {
-        // API call to delete artwork
         // await artworkService.deleteArtwork(artworkId);
         navigate('/profile');
       } catch (error) {
         console.error('Error deleting artwork:', error);
       }
     }
+  };
+
+  // Report handler (simulate submit)
+  const handleReportSubmit = reportData => {
+    console.log('REPORTED ARTWORK:', artwork?.id, reportData);
+    // Integrate with real API later!
   };
 
   if (loading) {
@@ -110,11 +118,11 @@ const ArtworkDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Hero Section */}
       <div className="relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Image */}
+
+            {/* Artwork Image */}
             <div className="relative group">
               <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-gray-800 relative">
                 {!imageLoaded && (
@@ -122,7 +130,6 @@ const ArtworkDetail = () => {
                     <Loading size="medium" />
                   </div>
                 )}
-                
                 <img
                   src={artwork.imageUrl}
                   alt={artwork.title}
@@ -131,28 +138,15 @@ const ArtworkDetail = () => {
                   }`}
                   onLoad={() => setImageLoaded(true)}
                 />
-
-                {/* Full Screen Button */}
-                <button className="absolute top-4 right-4 p-3 bg-black/50 backdrop-blur-sm rounded-full text-white hover:bg-black/70 transition-all duration-300 opacity-0 group-hover:opacity-100">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                  </svg>
-                </button>
-
-                {/* Glow Effect */}
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
             </div>
 
             {/* Details */}
             <div className="space-y-8">
-              {/* Header */}
+              {/* Title + Artist */}
               <div>
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-                  {artwork.title}
-                </h1>
-                
-                {/* Artist Info */}
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">{artwork.title}</h1>
                 <Link 
                   to={`/profile/${artwork.artist.id}`}
                   className="flex items-center space-x-4 p-4 bg-gray-800/30 backdrop-blur-sm rounded-2xl border border-gray-700/50 hover:border-purple-500/30 transition-all duration-300 group"
@@ -174,26 +168,34 @@ const ArtworkDetail = () => {
                 </Link>
               </div>
 
-              {/* Actions */}
+              {/* Action Buttons */}
               <div className="flex items-center space-x-4">
-                <LikeButton
-                  artworkId={artwork.id}
-                  initialLiked={artwork.isLiked}
-                  initialCount={artwork.likeCount}
-                />
-                
-                <FavoriteButton
-                  artworkId={artwork.id}
-                  initialFavorited={artwork.isFavorited}
-                />
-
-                <Button variant="outline" size="medium">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                  </svg>
-                  Share
-                </Button>
-
+                <LikeButton artworkId={artwork.id} initialLiked={artwork.isLiked} initialCount={artwork.likeCount} />
+                <FavoriteButton artworkId={artwork.id} initialFavorited={artwork.isFavorited} />
+               
+                {/* --- REPORT BUTTON (non-owners only) --- */}
+                {!artwork.isOwn && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="medium"
+                      onClick={() => setShowReport(true)}
+                      className="text-pink-400"
+                    >
+                      <svg className="w-4 h-4 mr-2 text-pink-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636l-9.192 9.192m7.778-9.193a8 8 0 11-11.313 0 8 8 0 0111.313 0z" />
+                      </svg>
+                      Report Artwork
+                    </Button>
+                    <ReportDialog
+                      isOpen={showReport}
+                      onClose={() => setShowReport(false)}
+                      onSubmit={handleReportSubmit}
+                      targetName={artwork.title}
+                      targetType="artwork"
+                    />
+                  </>
+                )}
                 {artwork.isOwn && (
                   <div className="flex space-x-2">
                     <Button
