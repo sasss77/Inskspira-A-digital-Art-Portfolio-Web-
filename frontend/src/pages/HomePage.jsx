@@ -415,7 +415,7 @@ const HomePage = () => {
             <div className="filter-tabs mt-8 lg:mt-0">
               {[
                 { id: 'recent', label: 'Recent', icon: '🕒' },
-                { id: 'popular', label: 'Popular', icon: '🔥' },
+                
                 ...(user ? [{ id: 'following', label: 'Following', icon: '👥' }] : [])
               ].map((tab) => (
                 <button

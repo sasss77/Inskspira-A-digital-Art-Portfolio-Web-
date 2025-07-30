@@ -71,7 +71,9 @@ const ArtworkGrid = ({
             <ArtworkCard artwork={artwork} />
           </div>
         ))}
-      </div>
+        </div>
+        
+      
 
       {/* Load More */}
       {(loadingMore || hasMore) && (

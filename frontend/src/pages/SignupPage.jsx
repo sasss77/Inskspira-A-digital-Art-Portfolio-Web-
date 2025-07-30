@@ -146,7 +146,7 @@ const SignupPage = () => {
           {/* Logo & Brand */}
           <div className="space-y-6">
             <div className="flex items-center space-x-4">
-              <div className="relative">
+              {/* <div className="relative">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl rotate-12 shadow-2xl">
                   <div className="absolute inset-0 bg-gradient-to-br from-pink-500 via-blue-500 to-purple-500 rounded-2xl -rotate-12 opacity-70 blur-sm"></div>
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -155,13 +155,28 @@ const SignupPage = () => {
                     </svg>
                   </div>
                 </div>
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  InkSpira
-                </h1>
-                <p className="text-gray-400 font-light">Join the Creative Universe</p>
-              </div>
+              </div> */}
+                             <Link
+               to="/"
+               className="inline-flex items-center space-x-4 group mb-6 transition-transform hover:scale-105"
+               aria-label="Go to Home"
+             >
+               <div className="relative">
+                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 rounded-2xl rotate-12 shadow-2xl" />
+                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl -rotate-12 opacity-70 blur-sm"></div>
+                 <div className="absolute inset-0 flex items-center justify-center">
+                   <svg className="w-8 h-8 text-white z-10" fill="currentColor" viewBox="0 0 24 24">
+                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                   </svg>
+                 </div>
+               </div>
+               <div>
+                 <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                   InkSpira
+                 </h1>
+                 <p className="text-gray-400 font-light">Digital Art Universe</p>
+               </div>
+             </Link>
             </div>
           </div>
 
@@ -218,20 +233,23 @@ const SignupPage = () => {
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
           <div className="w-full max-w-md">
             {/* Mobile Logo */}
-            <div className="lg:hidden text-center mb-8">
-              <div className="inline-flex items-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl">
-                  <div className="w-full h-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                  </div>
-                </div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  InkSpira
-                </h1>
+          <div className="lg:hidden text-center mb-8">
+            <Link
+              to="/"
+              className="inline-flex items-center space-x-3 mb-4 group transition-transform hover:scale-105"
+              aria-label="Go to Home"
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
               </div>
-            </div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                InkSpira
+              </h1>
+            </Link>
+          </div>
+          
 
             {/* Form Container */}
             <div className="relative group">
