@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const storedUser = localStorage.getItem('inkspira_user');
         const storedToken = localStorage.getItem('inkspira_token');
-        
+
         if (storedUser && storedToken) {
           const userData = JSON.parse(storedUser);
           setUser(userData);
@@ -47,7 +47,10 @@ export const AuthProvider = ({ children }) => {
         id: 1,
         username: email.split('@')[0] || 'Artist',
         email: email,
-        role: email.includes('artist') ? 'artist' : 'viewer',
+        role:
+          email.includes('admin') ? 'admin' :
+            email.includes('artist') ? 'artist' :
+              'viewer',
         profileImage: null,
         createdAt: new Date().toISOString()
       };
