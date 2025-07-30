@@ -111,8 +111,7 @@ function App() {
               }
             />
 
-            {/* Catch All - Redirect to Home */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+           
           </Routes>
         </div>
       </Router>

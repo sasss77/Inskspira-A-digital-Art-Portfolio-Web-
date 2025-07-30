@@ -50,7 +50,7 @@ const ArtworkUpload = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelect(e.dataTransfer.files[0]);
     }
@@ -106,14 +106,14 @@ const ArtworkUpload = () => {
       // formData.append('description', data.description);
       // formData.append('tags', data.tags);
       // formData.append('isPublic', data.isPublic);
-      
+
       // const response = await artworkService.uploadArtwork(formData);
-      
+
       // Simulate success
       setTimeout(() => {
         navigate('/profile');
       }, 500);
-      
+
     } catch (error) {
       setServerError(error.response?.data?.message || 'Upload failed. Please try again.');
       setLoading(false);
@@ -151,13 +151,12 @@ const ArtworkUpload = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           {/* File Upload Area */}
           <div
-            className={`relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-300 ${
-              dragActive
+            className={`relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-300 ${dragActive
                 ? 'border-purple-500 bg-purple-500/10'
                 : selectedFile
-                ? 'border-green-500 bg-green-500/10'
-                : 'border-gray-600 hover:border-gray-500'
-            }`}
+                  ? 'border-green-500 bg-green-500/10'
+                  : 'border-gray-600 hover:border-gray-500'
+              }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
@@ -241,58 +240,75 @@ const ArtworkUpload = () => {
             {/* Left Column */}
             <div className="space-y-6">
               {/* Title */}
-              <div>
-                <label className="input-label">Title *</label>
+              <div className="mb-6">
+                <label className="block mb-2 text-lg font-bold text-purple-300 tracking-wide">
+                  Title <span className="font-normal text-gray-400 text-base">*</span>
+                </label>
                 <input
+                  type="text"
+                  autoComplete="off"
                   {...register('title', {
                     required: 'Title is required',
-                    minLength: {
-                      value: 3,
-                      message: 'Title must be at least 3 characters'
-                    }
+                    maxLength: { value: 60, message: 'Title must be under 60 chars' }
                   })}
-                  className={`input-field ${errors.title && 'input-error'}`}
-                  placeholder="Give your artwork a catchy title"
+                  className={`
+      w-full px-5 py-3 rounded-xl border-2
+      bg-black/60 text-white text-base md:text-lg placeholder-gray-400 font-semibold
+      focus:outline-none focus:border-pink-400 focus:ring-2 focus:ring-pink-300/20
+      hover:border-purple-400 
+      transition-all duration-200 
+      ${errors.title ? 'border-red-500' : 'border-gray-700'}
+    `}
+                  placeholder="Give your artwork a name…"
                 />
-                {errors.title && (
-                  <p className="error-msg">{errors.title.message}</p>
-                )}
+                {errors.title && <p className="mt-1 text-red-400 text-sm">{errors.title.message}</p>}
               </div>
 
               {/* Description */}
-              <div>
-                <label className="input-label">Description</label>
+              <div className="mb-6">
+                <label className="block mb-2 text-lg font-bold text-purple-300 tracking-wide">
+                  Description <span className="font-normal text-gray-400 text-base">*</span>
+                </label>
                 <textarea
+                  rows={4}
                   {...register('description', {
-                    maxLength: {
-                      value: 1000,
-                      message: 'Description cannot exceed 1000 characters'
-                    }
+                    required: 'Description is required',
+                    maxLength: { value: 400, message: 'Keep it concise (max 400 chars)' }
                   })}
-                  rows={6}
-                  className={`input-field resize-none ${errors.description && 'input-error'}`}
-                  placeholder="Describe your artwork, inspiration, or technique..."
+                  className={`
+      w-full px-5 py-3 rounded-xl border-2 resize-none
+      bg-black/60 text-white text-base md:text-lg placeholder-gray-400 font-medium
+      focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300/20
+      hover:border-purple-400
+      transition-all duration-200
+      ${errors.description ? 'border-red-500' : 'border-gray-700'}
+    `}
+                  placeholder="Describe your artwork, inspiration, or technique…"
                 />
-                {errors.description && (
-                  <p className="error-msg">{errors.description.message}</p>
-                )}
+                {errors.description && <p className="mt-1 text-red-400 text-sm">{errors.description.message}</p>}
               </div>
-            </div>
 
-            {/* Right Column */}
-            <div className="space-y-6">
-              {/* Tags */}
+                            {/* Tags */}
               <div>
-                <label className="input-label">Tags</label>
-                <input
-                  {...register('tags')}
-                  className="input-field"
-                  placeholder="digital-art, fantasy, portrait (comma separated)"
-                />
+                 <label className="block mb-2 text-lg font-bold text-purple-300 tracking-wide">
+                  Tags <span className="font-normal text-gray-400 text-base">*</span>
+                </label>
+            <input
+  {...register('tags')}
+  className="
+    w-full px-5 py-3 rounded-xl border-2 font-medium
+    bg-gray-900/70 text-white placeholder-gray-400
+    border-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-600
+    hover:border-purple-400
+    transition-all duration-200
+  "
+  placeholder="digital-art, fantasy, portrait (comma separated)"
+/>
+
                 <p className="text-gray-500 text-sm mt-1">
                   Separate tags with commas (max 10 tags)
                 </p>
-                
+
                 {/* Tag Preview */}
                 {tags && (
                   <div className="flex flex-wrap gap-2 mt-3">
@@ -307,6 +323,11 @@ const ArtworkUpload = () => {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-6">
+
 
               {/* Visibility */}
               <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50">
@@ -363,16 +384,9 @@ const ArtworkUpload = () => {
             >
               Cancel
             </Button>
-            
+
             <div className="flex space-x-3">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={!isValid || !selectedFile || loading}
-                onClick={() => setValue('isPublic', false)}
-              >
-                Save as Draft
-              </Button>
+            
               <Button
                 type="submit"
                 variant="primary"
