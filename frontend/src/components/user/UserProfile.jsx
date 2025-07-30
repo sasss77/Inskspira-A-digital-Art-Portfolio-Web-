@@ -263,7 +263,7 @@ const UserProfile = () => {
               {[
                 { id: 'artworks', label: 'Artworks', icon: '🎨' },
                 { id: 'liked', label: 'Liked', icon: '❤️' },
-                { id: 'collections', label: 'Collections', icon: '📁' }
+             
               ].map((tab) => (
                 <button
                   key={tab.id}

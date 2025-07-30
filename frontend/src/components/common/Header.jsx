@@ -44,9 +44,10 @@ const Header = () => {
             {user?.role === 'artist' && (
               <Link
                 to="/upload"
-                className="nav-link text-gray-300 hover:text-white font-semibold transition-colors duration-300"
+                className="header-gradient-nav header-gradient-pink group" // Applied gradient style
               >
-                Upload
+                <span>Upload</span>
+                <div className="gradient-underline"></div>
               </Link>
             )}
 
@@ -61,9 +62,10 @@ const Header = () => {
             {user && (
               <Link
                 to="/favorites"
-                className="nav-link text-gray-300 hover:text-white font-semibold transition-colors duration-300"
+                className="header-gradient-nav header-gradient-green group" // Applied gradient style
               >
-                Favorites
+                <span>Favorites</span>
+                <div className="gradient-underline"></div>
               </Link>
             )}
           </nav>
@@ -116,28 +118,24 @@ const Header = () => {
           >
             <div className="w-6 h-6 flex flex-col justify-center items-center">
               <span
-                className={`block w-5 h-0.5 bg-gray-300 rounded transition-transform duration-300 ${
-                  isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''
-                }`}
+                className={`block w-5 h-0.5 bg-gray-300 rounded transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''
+                  }`}
               />
               <span
-                className={`block w-5 h-0.5 bg-gray-300 rounded my-1 transition-opacity duration-300 ${
-                  isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
-                }`}
+                className={`block w-5 h-0.5 bg-gray-300 rounded my-1 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
+                  }`}
               />
               <span
-                className={`block w-5 h-0.5 bg-gray-300 rounded transition-transform duration-300 ${
-                  isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''
-                }`}
+                className={`block w-5 h-0.5 bg-gray-300 rounded transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''
+                  }`}
               />
             </div>
           </button>
 
           {/* Mobile Menu */}
           <div
-            className={`md:hidden transition-max-height duration-300 overflow-hidden ${
-              isMobileMenuOpen ? 'max-h-96' : 'max-h-0'
-            } bg-gray-900 bg-opacity-95 border-t border-purple-500/20`}
+            className={`md:hidden transition-max-height duration-300 overflow-hidden ${isMobileMenuOpen ? 'max-h-96' : 'max-h-0'
+              } bg-gray-900 bg-opacity-95 border-t border-purple-500/20`}
           >
             <nav className="flex flex-col px-4 py-6 space-y-4">
               <Link
@@ -152,9 +150,10 @@ const Header = () => {
                 <Link
                   to="/upload"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="nav-link text-gray-300 hover:text-white font-semibold transition-colors duration-300"
+                  className="header-gradient-nav header-gradient-pink group" // Applied gradient style
                 >
-                  Upload
+                  <span>Upload</span>
+                  <div className="gradient-underline"></div>
                 </Link>
               )}
               <Link
@@ -169,9 +168,10 @@ const Header = () => {
                 <Link
                   to="/favorites"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="nav-link text-gray-300 hover:text-white font-semibold transition-colors duration-300"
+                  className="header-gradient-nav header-gradient-green group" // Applied gradient style
                 >
-                  Favorites
+                  <span>Favorites</span>
+                  <div className="gradient-underline"></div>
                 </Link>
               )}
               {user ? (
@@ -245,6 +245,28 @@ const Header = () => {
           opacity: 0.9;
           filter: drop-shadow(0 0 8px #2563eb88);
         }
+        /* New gradient styles for Upload and Favorites */
+        .header-gradient-pink {
+          background: linear-gradient(90deg, #ec4899, #f472b6);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .header-gradient-pink:hover {
+          opacity: 0.85;
+          filter: drop-shadow(0 0 8px #ec489999);
+        }
+        .header-gradient-green {
+          background: linear-gradient(90deg, #10b981, #34d399);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+        .header-gradient-green:hover {
+          opacity: 0.9;
+          filter: drop-shadow(0 0 8px #10b98188);
+        }
+
         .gradient-underline {
           position: absolute;
           bottom: -1px;
@@ -258,6 +280,12 @@ const Header = () => {
         }
         .header-gradient-blue .gradient-underline {
           background: linear-gradient(90deg, #3b82f6, #6366f1);
+        }
+        .header-gradient-pink .gradient-underline {
+          background: linear-gradient(90deg, #ec4899, #f472b6);
+        }
+        .header-gradient-green .gradient-underline {
+          background: linear-gradient(90deg, #10b981, #34d399);
         }
         .group:hover > .gradient-underline {
           width: 100%;
