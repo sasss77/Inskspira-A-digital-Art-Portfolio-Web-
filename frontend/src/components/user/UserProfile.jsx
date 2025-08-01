@@ -7,6 +7,7 @@ import ArtworkGrid from '../artwork/ArtworkGrid';
 import Loading from '../common/Loading';
 import Button from '../common/Button';
 import EditProfile from './EditProfile';
+import apiService from '../../services/api';
 
 const UserProfile = () => {
   const { userId } = useParams();
@@ -29,63 +30,62 @@ const UserProfile = () => {
 
   const fetchUserProfile = async () => {
     try {
-      // API calls to fetch user data
-      // const userResponse = await userService.getUserById(userId);
-      // const artworksResponse = await artworkService.getUserArtworks(userId);
+      setLoading(true);
       
-      // Simulate API calls
-      setTimeout(() => {
-        setProfileUser({
-          id: userId || currentUser?.id,
-          username: 'ArtisticSoul',
-          email: 'artist@example.com',
-          role: 'artist',
-          bio: 'Digital artist passionate about creating vibrant and emotional artworks. Inspired by nature, dreams, and the beauty of human expression. 🎨✨',
-          profileImage: null,
-          coverImage: null,
-          location: 'San Francisco, CA',
-          website: 'https://artisticsoul.portfolio.com',
-          joinedAt: '2023-01-15T00:00:00Z',
-          isFollowing: false
-        });
-
-        setUserArtworks([
-          {
-            id: 1,
-            title: 'Mystic Forest',
-            imageUrl: '/api/placeholder/300/400',
-            likes: 124,
-            comments: 18
-          },
-          {
-            id: 2,
-            title: 'Digital Dreams',
-            imageUrl: '/api/placeholder/300/350',
-            likes: 89,
-            comments: 12
-          }
-        ]);
-
+      // Fetch user profile data
+      const userResponse = await apiService.getUserProfile(userId || currentUser?.id);
+      if (userResponse.success) {
+        const user = userResponse.data.user;
+        setProfileUser(user);
         setStats({
-          artworks: 28,
-          followers: 1247,
-          following: 345,
-          likes: 5621
+          artworks: user.artworks?.length || 0,
+          followers: user.followerCount || 0,
+          following: user.followingCount || 0,
+          likes: user.totalLikes || 0
         });
+      }
 
-        setLoading(false);
-      }, 1000);
+      // Fetch user artworks
+      const artworksResponse = await apiService.getUserArtworks(userId || currentUser?.id);
+      if (artworksResponse.success) {
+        setUserArtworks(artworksResponse.data.artworks || []);
+      }
+
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching user profile:', error);
       setLoading(false);
     }
   };
 
-  const handleFollowChange = (isFollowing) => {
+  const handleFollowChange = async (isFollowing) => {
+    // Optimistically update the UI
     setStats(prev => ({
       ...prev,
       followers: prev.followers + (isFollowing ? 1 : -1)
     }));
+    
+    // Refetch user profile to ensure data consistency
+    try {
+      const userResponse = await apiService.getUserProfile(userId || currentUser?.id);
+      if (userResponse.success) {
+        const user = userResponse.data.user;
+        setProfileUser(user);
+        setStats({
+          artworks: user.artworks?.length || 0,
+          followers: user.followerCount || 0,
+          following: user.followingCount || 0,
+          likes: user.totalLikes || 0
+        });
+      }
+    } catch (error) {
+      console.error('Error refetching user profile after follow change:', error);
+    }
+  };
+
+  const handleArtworkUpdate = () => {
+    // Refresh the user's artworks after deletion
+    fetchUserProfile();
   };
 
   const formatJoinDate = (dateString) => {
@@ -285,7 +285,10 @@ const UserProfile = () => {
               {activeTab === 'artworks' && (
                 <div>
                   {userArtworks.length > 0 ? (
-                    <ArtworkGrid artworks={userArtworks} />
+                    <ArtworkGrid 
+                      artworks={userArtworks} 
+                      onArtworkUpdate={handleArtworkUpdate}
+                    />
                   ) : (
                     <div className="text-center py-12">
                       <div className="text-6xl mb-4">🎨</div>

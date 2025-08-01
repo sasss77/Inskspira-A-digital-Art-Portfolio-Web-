@@ -1,25 +1,32 @@
-  // src/pages/LoginPage.jsx
+// src/pages/LoginPage.jsx
   import React, { useState, useEffect } from 'react';
-  import { Link, useNavigate } from 'react-router-dom';
+  import { Link, useNavigate, useLocation } from 'react-router-dom';
   import { useForm } from 'react-hook-form';
-  import { useAuth } from '../hooks/useAuth';
-  import Button from '../components/common/Button';
-  import ErrorMessage from '../components/common/ErrorMessage';
+  import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
+import Button from '../components/common/Button';
+import ErrorMessage from '../components/common/ErrorMessage';
+
 
   const LoginPage = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
     const {
       register,
       handleSubmit,
+      setValue,
       formState: { errors, isValid }
     } = useForm({
       mode: 'onChange',
-      defaultValues: { email: '', password: '' }
+      defaultValues: { 
+        email: location.state?.email || '', 
+        password: '' 
+      }
     });
-
-    const navigate = useNavigate();
-    const { login } = useAuth();
-    const [loading, setLoading] = useState(false);
-    const [serverError, setServerError] = useState('');
+  const { login } = useAuth();
+  const { showSuccess, showError } = useNotification();
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const [currentArtwork, setCurrentArtwork] = useState(0);
@@ -64,18 +71,35 @@
       return () => clearInterval(interval);
     }, []);
 
-    const onSubmit = async ({ email, password }) => {
-      setLoading(true);
-      setServerError('');
-      try {
-        await login(email, password);
-        navigate('/');
-      } catch (err) {
-        setServerError(err.response?.data?.message || 'Login failed, please try again.');
-      } finally {
-        setLoading(false);
+    // Show signup success message
+    useEffect(() => {
+      if (location.state?.message) {
+        showSuccess(location.state.message);
+        // Clear the state to prevent showing the message again on refresh
+        window.history.replaceState({}, document.title);
       }
-    };
+    }, [location.state, showSuccess]);
+
+    const onSubmit = async ({ email, password }) => {
+    setLoading(true);
+    setServerError('');
+    try {
+      const user = await login(email, password);
+      showSuccess('Welcome back! Login successful.');
+      // Redirect admin users to admin panel, others to home
+      if (user && user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Login failed, please try again.';
+      setServerError(errorMessage);
+      showError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
     return (
       <div className="min-h-screen relative overflow-hidden bg-black">

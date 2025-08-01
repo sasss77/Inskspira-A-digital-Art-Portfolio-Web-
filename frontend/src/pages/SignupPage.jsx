@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 import Button from '../components/common/Button';
 import ErrorMessage from '../components/common/ErrorMessage';
 
@@ -25,6 +26,7 @@ const SignupPage = () => {
 
   const navigate = useNavigate();
   const { signup } = useAuth();
+  const { showSuccess, showError } = useNotification();
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -82,9 +84,17 @@ const SignupPage = () => {
     setServerError('');
     try {
       await signup(data);
-      navigate('/');
+      showSuccess('Account created successfully! Welcome to Inkspira.');
+      navigate('/login', { 
+        state: { 
+          message: 'Account created successfully! Please login to continue.',
+          email: data.email 
+        }
+      });
     } catch (err) {
-      setServerError(err.response?.data?.message || 'Signup failed, please try again.');
+      const errorMessage = err.response?.data?.message || err.message || 'Signup failed, please try again.';
+      setServerError(errorMessage);
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }

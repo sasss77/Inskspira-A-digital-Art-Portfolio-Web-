@@ -7,6 +7,7 @@ import ArtworkGrid from '../components/artwork/ArtworkGrid';
 import UserCard from '../components/user/UserCard';
 import Loading from '../components/common/Loading';
 import Button from '../components/common/Button';
+import apiService from '../services/api';
 
 const FollowingPage = () => {
   const [artworks, setArtworks] = useState([]);
@@ -21,23 +22,9 @@ const FollowingPage = () => {
 
   const fetchFollowingFeed = async () => {
     try {
-      setTimeout(() => {
-        setArtworks([
-          {
-            id: 1,
-            title: 'Latest from Following',
-            imageUrl: '/api/placeholder/300/400',
-            artist: { id: 1, username: 'FollowedArtist' },
-            likeCount: 89,
-            commentCount: 12,
-            isLiked: false,
-            isFavorited: false,
-            createdAt: '2024-01-15T10:30:00Z',
-            tags: ['digital-art', 'portrait']
-          }
-        ]);
-        setLoading(false);
-      }, 1000);
+      const response = await apiService.getFollowing();
+      setArtworks(response.artworks || []);
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching following feed:', error);
       setLoading(false);
@@ -46,20 +33,8 @@ const FollowingPage = () => {
 
   const fetchSuggestedUsers = async () => {
     try {
-      setTimeout(() => {
-        setSuggestedUsers([
-          {
-            id: 1,
-            username: 'TalentedArtist',
-            role: 'artist',
-            bio: 'Digital artist specializing in fantasy illustrations',
-            artworkCount: 45,
-            followerCount: 1200,
-            totalLikes: 5600,
-            isFollowing: false
-          }
-        ]);
-      }, 1200);
+      const response = await apiService.searchUsers({ suggested: true });
+       setSuggestedUsers(response.users || []);
     } catch (error) {
       console.error('Error fetching suggested users:', error);
     }

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import Button from '../common/Button';
+import apiService from '../../services/api';
 
 const FollowButton = ({ userId, username, initialFollowing = false, onFollowChange }) => {
   const [isFollowing, setIsFollowing] = useState(initialFollowing);
@@ -21,21 +22,17 @@ const FollowButton = ({ userId, username, initialFollowing = false, onFollowChan
     setLoading(true);
     
     try {
-      // API call to toggle follow
-      // const response = await followService.toggleFollow(userId);
-      
-      // Simulate API call
-      setTimeout(() => {
-        const newFollowingState = !isFollowing;
+      const response = await apiService.toggleFollow(userId);
+      if (response.success) {
+        const newFollowingState = response.data.isFollowing;
         setIsFollowing(newFollowingState);
         
         if (onFollowChange) {
           onFollowChange(newFollowingState);
         }
-        
-        setLoading(false);
-      }, 500);
+      }
       
+      setLoading(false);
     } catch (error) {
       console.error('Error toggling follow:', error);
       setLoading(false);

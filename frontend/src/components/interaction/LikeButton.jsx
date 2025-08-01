@@ -1,6 +1,7 @@
 // src/components/interaction/LikeButton.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import apiService from '../../services/api';
 
 const LikeButton = ({ artworkId, initialLiked = false, initialCount = 0, onLikeChange }) => {
   const [isLiked, setIsLiked] = useState(initialLiked);
@@ -17,22 +18,20 @@ const LikeButton = ({ artworkId, initialLiked = false, initialCount = 0, onLikeC
     setIsAnimating(true);
     
     try {
-      // API call to toggle like
-      // const response = await likeService.toggleLike(artworkId);
-      
-      // Simulate API call for now
-      setTimeout(() => {
-        const newLikedState = !isLiked;
+      const response = await apiService.toggleLike(artworkId);
+      if (response.success) {
+        const newLikedState = response.data.isLiked;
+        const newLikeCount = response.data.likeCount;
+        
         setIsLiked(newLikedState);
-        setLikeCount(prev => newLikedState ? prev + 1 : prev - 1);
+        setLikeCount(newLikeCount);
         
         if (onLikeChange) {
-          onLikeChange(newLikedState, newLikedState ? likeCount + 1 : likeCount - 1);
+          onLikeChange(newLikedState, newLikeCount);
         }
-        
-        setTimeout(() => setIsAnimating(false), 300);
-      }, 200);
+      }
       
+      setTimeout(() => setIsAnimating(false), 300);
     } catch (error) {
       console.error('Error toggling like:', error);
       setIsAnimating(false);

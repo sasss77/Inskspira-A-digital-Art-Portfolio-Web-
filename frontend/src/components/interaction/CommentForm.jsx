@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useAuth } from '../../hooks/useAuth';
 import Button from '../common/Button';
 import ErrorMessage from '../common/ErrorMessage';
+import apiService from '../../services/api';
 
 const CommentForm = ({ artworkId, onCommentAdded, onCancel }) => {
   const [loading, setLoading] = useState(false);
@@ -31,28 +32,13 @@ const CommentForm = ({ artworkId, onCommentAdded, onCancel }) => {
     setLoading(true);
     
     try {
-      // API call to add comment
-      // const response = await commentService.addComment(artworkId, data.content);
+      const response = await apiService.createComment(artworkId, data.content.trim());
       
-      // Simulate API call
-      setTimeout(() => {
-        const newComment = {
-          id: Date.now(),
-          content: data.content.trim(),
-          user: {
-            id: user.id,
-            username: user.username,
-            profileImage: user.profileImage
-          },
-          createdAt: new Date().toISOString(),
-          isOwn: true
-        };
-        
-        onCommentAdded(newComment);
-        reset(); // Reset form after successful submission
-        setLoading(false);
-      }, 500);
-      
+      if (response.success) {
+        onCommentAdded(response.data.comment);
+        reset();
+      }
+      setLoading(false);
     } catch (error) {
       console.error('Error adding comment:', error);
       setLoading(false);

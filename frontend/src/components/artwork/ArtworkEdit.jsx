@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import Button from '../common/Button';
 import ErrorMessage from '../common/ErrorMessage';
 import Loading from '../common/Loading';
+import apiService from '../../services/api';
 
 const ArtworkEdit = () => {
   const { artworkId } = useParams();
@@ -34,40 +35,31 @@ const ArtworkEdit = () => {
 
   const fetchArtwork = async () => {
     try {
-      // API call to fetch artwork
-      // const response = await artworkService.getArtworkById(artworkId);
+      setLoading(true);
+      setServerError('');
       
-      // Simulate API call
-      setTimeout(() => {
-        const artworkData = {
-          id: artworkId,
-          title: 'Mystic Digital Landscape',
-          description: 'A breathtaking digital landscape that captures the essence of a mystical forest at twilight.',
-          tags: ['digital-art', 'landscape', 'fantasy', 'mystical', 'purple'],
-          isPublic: true,
-          imageUrl: '/api/placeholder/800/1000',
-          artist: { id: user?.id }
-        };
+      const response = await apiService.getArtworkById(artworkId);
+      const artworkData = response.data.artwork;
 
-        // Check if user owns this artwork
-        if (artworkData.artist.id !== user?.id) {
-          navigate('/');
-          return;
-        }
-
-        setArtwork(artworkData);
-        
-        // Set form values
-        setValue('title', artworkData.title);
-        setValue('description', artworkData.description);
-        setValue('tags', artworkData.tags.join(', '));
-        setValue('isPublic', artworkData.isPublic);
-
+      // Check if user owns this artwork
+      if (artworkData.artist.id !== user?.id) {
+        setServerError('You are not authorized to edit this artwork');
         setLoading(false);
-      }, 1000);
+        return;
+      }
+
+      setArtwork(artworkData);
+      
+      // Set form values
+      setValue('title', artworkData.title);
+      setValue('description', artworkData.description);
+      setValue('tags', Array.isArray(artworkData.tags) ? artworkData.tags.join(', ') : '');
+      setValue('isPublic', artworkData.isPublic || true);
+
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching artwork:', error);
-      setServerError('Failed to load artwork');
+      setServerError(error.response?.data?.message || 'Failed to load artwork');
       setLoading(false);
     }
   };
@@ -77,15 +69,37 @@ const ArtworkEdit = () => {
     setServerError('');
 
     try {
-      // API call to update artwork
-      // const response = await artworkService.updateArtwork(artworkId, data);
+      const formData = new FormData();
+      formData.append('title', data.title);
+      formData.append('description', data.description);
       
-      // Simulate API call
-      setTimeout(() => {
+      // Process tags
+      if (data.tags) {
+        const tagsArray = data.tags
+          .split(',')
+          .map(tag => tag.trim())
+          .filter(tag => tag.length > 0);
+        tagsArray.forEach(tag => {
+          formData.append('tags[]', tag);
+        });
+      }
+      
+      // Handle image upload if new image is selected
+      if (data.image && data.image[0]) {
+        formData.append('image', data.image[0]);
+      }
+
+      const response = await apiService.updateArtwork(artworkId, formData);
+      
+      if (response.success) {
         navigate(`/artwork/${artworkId}`);
-      }, 1000);
+      } else {
+        setServerError(response.message || 'Failed to update artwork');
+        setSaving(false);
+      }
       
     } catch (error) {
+      console.error('Error updating artwork:', error);
       setServerError(error.response?.data?.message || 'Failed to update artwork');
       setSaving(false);
     }
@@ -197,6 +211,20 @@ const ArtworkEdit = () => {
                 {errors.description && (
                   <p className="error-msg">{errors.description.message}</p>
                 )}
+              </div>
+
+              {/* Image Upload (Optional) */}
+              <div>
+                <label className="input-label">Update Image (Optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  {...register('image')}
+                  className="input-field file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700"
+                />
+                <p className="text-gray-500 text-sm mt-1">
+                  Leave empty to keep current image. Supported formats: JPG, PNG, GIF (max 10MB)
+                </p>
               </div>
 
               {/* Tags */}

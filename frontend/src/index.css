@@ -48,6 +48,22 @@
   animation: slideInDown 0.6s ease-out forwards;
 }
 
+.input-label {
+  @apply block text-sm font-medium text-white mb-2;
+}
+
+.input-field {
+  @apply w-full px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200;
+}
+
+.input-error {
+  @apply border-red-500 focus:ring-red-500;
+}
+
+.error-msg {
+  @apply text-red-400 text-sm mt-1;
+}
+
 /* Glassmorphism effect */
 .glass {
   background: rgba(255, 255, 255, 0.05);
@@ -55,6 +71,22 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+
+/* Artwork Showcase Styles */
+.artwork-showcase {
+  @apply w-full;
+}
+
+.artwork-showcase .grid {
+  @apply gap-6 md:gap-8;
+}
+
+/* Responsive grid improvements */
+@media (max-width: 640px) {
+  .artwork-showcase .grid {
+    @apply gap-4;
+  }
+}
 
 /* Add to src/index.css */
 

@@ -1,54 +1,149 @@
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
+import jwt from 'jsonwebtoken';
+import { Op } from 'sequelize';
+import { User } from '../models/index.js';
 
-// Register new user (artist/viewer)
-exports.register = async (req, res) => {
+const generateToken = (userId) => {
+  return jwt.sign(
+    { userId },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+  );
+};
+
+export const signup = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
-    if (!['artist', 'viewer'].includes(role)) return res.status(400).json({ message: 'Invalid role' });
+    const { username, email, password, role = 'viewer' } = req.body;
 
-    const exists = await User.findOne({ where: { [User.sequelize.Op.or]: [{ email }, { username }] } });
-    if (exists) return res.status(409).json({ message: 'Email or username already in use.' });
+    const existingUser = await User.findOne({
+      where: {
+        [Op.or]: [
+          { email },
+          { username }
+        ]
+      }
+    });
 
-    const hash = await bcrypt.hash(password, 10);
-    const user = await User.create({ username, email, password_hash: hash, role });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: existingUser.email === email 
+          ? 'Email already registered' 
+          : 'Username already taken'
+      });
+    }
 
-    return res.status(201).json({ message: 'User registered successfully!', user: { id: user.id, username: user.username, email: user.email, role: user.role } });
-  } catch (err) {
-    res.status(500).json({ message: 'Registration failed', error: err.message });
+    const user = await User.create({
+      username,
+      email,
+      password,
+      role
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully. Please login to continue.',
+      data: {
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          role: user.role
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create user'
+    });
   }
 };
 
-// Login (returns JWT)
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
   try {
-    const { emailOrUsername, password } = req.body;
-    const user = await User.findOne({
-      where: { [User.sequelize.Op.or]: [{ email: emailOrUsername }, { username: emailOrUsername }] }
-    });
+    const { email, password } = req.body;
 
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    const valid = await bcrypt.compare(password, user.password_hash);
-    if (!valid) return res.status(401).json({ message: 'Invalid credentials' });
+    const user = await User.findOne({ where: { email } });
 
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '2d' });
+    if (!user || !user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    const isPasswordValid = await user.comparePassword(password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    await user.update({ lastLoginAt: new Date() });
+
+    const token = generateToken(user.id);
+
     res.json({
-      token,
-      user: { id: user.id, username: user.username, email: user.email, role: user.role }
+      success: true,
+      message: 'Login successful',
+      data: {
+        user,
+        token
+      }
     });
-  } catch (err) {
-    res.status(500).json({ message: 'Login failed', error: err.message });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Login failed'
+    });
   }
 };
 
-// Get current user profile (from JWT)
-exports.me = async (req, res) => {
+export const getProfile = async (req, res) => {
   try {
-    const user = await User.findByPk(req.user.id, { attributes: { exclude: ['password_hash'] } });
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to get profile', error: err.message });
+    const user = await User.findByPk(req.user.id, {
+      attributes: { exclude: ['password'] }
+    });
+
+    res.json({
+      success: true,
+      data: { user }
+    });
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get profile'
+    });
+  }
+};
+
+export const refreshToken = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    
+    if (!user || !user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found or inactive'
+      });
+    }
+
+    const token = generateToken(user.id);
+
+    res.json({
+      success: true,
+      data: { token }
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to refresh token'
+    });
   }
 };

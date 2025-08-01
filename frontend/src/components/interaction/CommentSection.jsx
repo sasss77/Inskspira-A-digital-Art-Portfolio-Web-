@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import CommentForm from './CommentForm';
 import Loading from '../common/Loading';
+import apiService from '../../services/api';
 
 const CommentSection = ({ artworkId }) => {
   const [comments, setComments] = useState([]);
@@ -16,29 +17,16 @@ const CommentSection = ({ artworkId }) => {
 
   const fetchComments = async () => {
     try {
-      // API call to fetch comments
-      // const response = await commentService.getComments(artworkId);
-      
-      // Simulate API call with dummy data
-      setTimeout(() => {
-        setComments([
-          {
-            id: 1,
-            content: 'Amazing artwork! The color palette is absolutely stunning 🎨',
-            user: { id: 1, username: 'ArtLover_23', profileImage: null },
-            createdAt: '2024-01-15T10:30:00Z',
-            isOwn: false
-          },
-          {
-            id: 2,
-            content: 'This piece speaks to my soul. The way you captured the emotion is incredible.',
-            user: { id: 2, username: 'CreativeSpirit', profileImage: null },
-            createdAt: '2024-01-15T12:45:00Z',
-            isOwn: false
-          }
-        ]);
-        setLoading(false);
-      }, 1000);
+      setLoading(true);
+      const response = await apiService.getComments(artworkId);
+      if (response.success) {
+        const commentsWithOwnership = response.data.comments.map(comment => ({
+          ...comment,
+          isOwn: comment.user.id === user?.id
+        }));
+        setComments(commentsWithOwnership);
+      }
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching comments:', error);
       setLoading(false);
@@ -46,16 +34,20 @@ const CommentSection = ({ artworkId }) => {
   };
 
   const handleCommentAdded = (newComment) => {
-    setComments(prev => [newComment, ...prev]);
+    const commentWithOwnership = {
+      ...newComment,
+      isOwn: newComment.user.id === user?.id
+    };
+    setComments(prev => [commentWithOwnership, ...prev]);
     setShowCommentForm(false);
   };
 
   const handleDeleteComment = async (commentId) => {
     try {
-      // API call to delete comment
-      // await commentService.deleteComment(commentId);
-      
-      setComments(prev => prev.filter(comment => comment.id !== commentId));
+      const response = await apiService.deleteComment(commentId);
+      if (response.success) {
+        setComments(prev => prev.filter(comment => comment.id !== commentId));
+      }
     } catch (error) {
       console.error('Error deleting comment:', error);
     }

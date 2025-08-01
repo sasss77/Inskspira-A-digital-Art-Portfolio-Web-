@@ -1,6 +1,7 @@
-    // src/components/interaction/FavoriteButton.jsx
+// src/components/interaction/FavoriteButton.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import apiService from '../../services/api';
 
 const FavoriteButton = ({ artworkId, initialFavorited = false, onFavoriteChange }) => {
   const [isFavorited, setIsFavorited] = useState(initialFavorited);
@@ -15,21 +16,17 @@ const FavoriteButton = ({ artworkId, initialFavorited = false, onFavoriteChange 
     setIsAnimating(true);
     
     try {
-      // API call to toggle favorite
-      // const response = await favoriteService.toggleFavorite(artworkId);
-      
-      // Simulate API call
-      setTimeout(() => {
-        const newFavoritedState = !isFavorited;
+      const response = await apiService.toggleFavorite(artworkId);
+      if (response.success) {
+        const newFavoritedState = response.data.isFavorited;
         setIsFavorited(newFavoritedState);
         
         if (onFavoriteChange) {
           onFavoriteChange(newFavoritedState);
         }
-        
-        setTimeout(() => setIsAnimating(false), 300);
-      }, 200);
+      }
       
+      setTimeout(() => setIsAnimating(false), 300);
     } catch (error) {
       console.error('Error toggling favorite:', error);
       setIsAnimating(false);

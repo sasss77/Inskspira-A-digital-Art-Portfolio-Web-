@@ -1,10 +1,13 @@
 // src/pages/FavoritesPage.jsx
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import ArtworkGrid from '../components/artwork/ArtworkGrid';
 import Loading from '../components/common/Loading';
+import Button from '../components/common/Button';
+import apiService from '../services/api';
 
 const FavoritesPage = () => {
   const { user } = useAuth();
@@ -15,26 +18,18 @@ const FavoritesPage = () => {
     fetchFavorites();
   }, []);
 
+  const handleArtworkUpdate = () => {
+    fetchFavorites();
+  };
+
   const fetchFavorites = async () => {
+    setLoading(true);
     try {
-      // API call to fetch favorites
-      setTimeout(() => {
-        setFavorites([
-          {
-            id: 1,
-            title: 'Saved Masterpiece',
-            imageUrl: '/api/placeholder/300/400',
-            artist: { id: 1, username: 'ArtisticSoul' },
-            likeCount: 124,
-            commentCount: 18,
-            isLiked: true,
-            isFavorited: true,
-            createdAt: '2024-01-15T10:30:00Z',
-            tags: ['digital-art', 'landscape', 'fantasy']
-          }
-        ]);
-        setLoading(false);
-      }, 1000);
+      const response = await apiService.getFavorites();
+      if (response.success) {
+        setFavorites(response.data.artworks || []);
+      }
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching favorites:', error);
       setLoading(false);
@@ -82,7 +77,10 @@ const FavoritesPage = () => {
                 <Loading size="large" text="Loading your favorites..." />
               </div>
             ) : favorites.length > 0 ? (
-              <ArtworkGrid artworks={favorites} />
+              <ArtworkGrid 
+                artworks={favorites} 
+                onArtworkUpdate={handleArtworkUpdate}
+              />
             ) : (
               <div className="text-center py-20">
                 <div className="favorites-empty-icon mb-8">

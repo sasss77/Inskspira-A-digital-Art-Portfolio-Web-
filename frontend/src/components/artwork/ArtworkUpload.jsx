@@ -1,8 +1,9 @@
 // src/components/artwork/ArtworkUpload.jsx
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import apiService from '../../services/api';
 import Button from '../common/Button';
 import ErrorMessage from '../common/ErrorMessage';
 
@@ -24,13 +25,39 @@ const ArtworkUpload = () => {
   });
 
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Check if user is authenticated and has artist role
+  useEffect(() => {
+    if (authLoading) return; // Wait for auth to load
+    
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (user.role !== 'artist' && user.role !== 'admin') {
+      navigate('/');
+      return;
+    }
+  }, [user, authLoading, navigate]);
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const tags = watch('tags');
 
@@ -91,30 +118,52 @@ const ArtworkUpload = () => {
 
     setLoading(true);
     setServerError('');
+    setUploadProgress(0);
 
     try {
-      // Simulate file upload with progress
-      for (let i = 0; i <= 100; i += 10) {
-        setUploadProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 100));
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      formData.append('title', data.title);
+      formData.append('description', data.description);
+      
+      // Process tags - convert comma-separated string to array
+      if (data.tags) {
+        const tagsArray = data.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+        tagsArray.forEach(tag => {
+          formData.append('tags[]', tag);
+        });
       }
 
+      // Simulate upload progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 200);
+
       // API call to upload artwork
-      // const formData = new FormData();
-      // formData.append('image', selectedFile);
-      // formData.append('title', data.title);
-      // formData.append('description', data.description);
-      // formData.append('tags', data.tags);
-      // formData.append('isPublic', data.isPublic);
+      const response = await apiService.createArtwork(formData);
+      
+      // Complete progress
+      clearInterval(progressInterval);
+      setUploadProgress(100);
 
-      // const response = await artworkService.uploadArtwork(formData);
-
-      // Simulate success
+      // Navigate to profile or artwork detail page
       setTimeout(() => {
-        navigate('/profile');
+        if (response.data?.artwork?.id) {
+          navigate(`/artwork/${response.data.artwork.id}`);
+        } else {
+          navigate('/profile');
+        }
       }, 500);
 
     } catch (error) {
+      console.error('Upload error:', error);
       setServerError(error.response?.data?.message || 'Upload failed. Please try again.');
       setLoading(false);
       setUploadProgress(0);

@@ -1,9 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 // Common
 import ProtectedRoute from './components/common/ProtectedRoute';
+import AdminRoute from './components/common/AdminRoute';
+import ArtistRoute from './components/common/ArtistRoute';
 import PublicRoute from './components/common/PublicRoute';
 import OwnProfileRedirect from './components/common/OwnProfileRedirect';
 
@@ -22,7 +25,11 @@ import TermsPage from './pages/TermsPage';
 import CookiesPage from './pages/CookiesPage';
 import AboutPage from './pages/AboutPage';
 import GuidelinesPage from './pages/GuidelinesPage';
+import AccessDeniedPage from './pages/AccessDeniedPage';
 import NotFoundPage from './pages/NotFoundPage';
+
+// Components
+import ArtworkEdit from './components/artwork/ArtworkEdit';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -32,8 +39,9 @@ import AdminReports from './pages/admin/AdminReports';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <NotificationProvider>
+      <AuthProvider>
+        <Router>
         <div className="App">
           <Routes>
             {/* --- Public Routes --- */}
@@ -89,17 +97,17 @@ function App() {
             <Route
               path="/upload"
               element={
-                <ProtectedRoute requireRole="artist">
+                <ArtistRoute>
                   <UploadPage />
-                </ProtectedRoute>
+                </ArtistRoute>
               }
             />
             <Route
               path="/artwork/:artworkId/edit"
               element={
-                <ProtectedRoute requireRole="artist">
-                  <UploadPage />
-                </ProtectedRoute>
+                <ArtistRoute>
+                  <ArtworkEdit />
+                </ArtistRoute>
               }
             />
 
@@ -117,42 +125,46 @@ function App() {
             <Route
               path="/admin"
               element={
-                // <ProtectedRoute requireRole="admin">
+                <ProtectedRoute requireRole="admin">
                   <AdminDashboard />
-                // </ProtectedRoute>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/admin/users"
               element={
-                // <ProtectedRoute requireRole="admin">
+                <ProtectedRoute requireRole="admin">
                   <AdminUsers />
-                // </ProtectedRoute>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/admin/artworks"
               element={
-                // <ProtectedRoute requireRole="admin">
+                <ProtectedRoute requireRole="admin">
                   <AdminArtworks />
-                // </ProtectedRoute>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/admin/reports"
               element={
-                // <ProtectedRoute requireRole="admin">
+                <ProtectedRoute requireRole="admin">
                   <AdminReports />
-                // </ProtectedRoute>
+                </ProtectedRoute>
               }
             />
+
+            {/* --- Access Denied --- */}
+            <Route path="/access-denied" element={<AccessDeniedPage />} />
 
             {/* --- Catch-All 404 --- */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </div>
-      </Router>
-    </AuthProvider>
+        </Router>
+      </AuthProvider>
+    </NotificationProvider>
   );
 }
 

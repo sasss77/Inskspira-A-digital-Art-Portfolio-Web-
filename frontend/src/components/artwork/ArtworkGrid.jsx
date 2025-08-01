@@ -2,15 +2,33 @@
 import React, { useState, useEffect } from 'react';
 import ArtworkCard from './ArtworkCard';
 import Loading from '../common/Loading';
+import apiService from '../../services/api';
+import { useNotification } from '../../context/NotificationContext';
 
 const ArtworkGrid = ({ 
   artworks = [], 
   loading = false, 
   onLoadMore,
   hasMore = false,
-  columns = 'auto'
+  columns = 'auto',
+  onArtworkUpdate
 }) => {
   const [loadingMore, setLoadingMore] = useState(false);
+  const { showNotification } = useNotification();
+
+  const handleDeleteArtwork = async (artworkId) => {
+    try {
+      await apiService.deleteArtwork(artworkId);
+      showNotification('Artwork deleted successfully', 'success');
+      // Notify parent component to refresh the artwork list
+      if (onArtworkUpdate) {
+        onArtworkUpdate();
+      }
+    } catch (error) {
+      console.error('Delete artwork error:', error);
+      showNotification('Failed to delete artwork', 'error');
+    }
+  };
 
   // Handle infinite scroll
   useEffect(() => {
@@ -68,7 +86,10 @@ const ArtworkGrid = ({
             className="animate-fadeIn"
             style={{ animationDelay: `${(index % 20) * 0.05}s` }}
           >
-            <ArtworkCard artwork={artwork} />
+            <ArtworkCard 
+              artwork={artwork} 
+              onDelete={handleDeleteArtwork}
+            />
           </div>
         ))}
         </div>

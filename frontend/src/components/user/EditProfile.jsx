@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import Modal from '../common/Modal';
 import Button from '../common/Button';
 import ErrorMessage from '../common/ErrorMessage';
+import apiService from '../../services/api';
 
 const EditProfile = ({ user, onClose, onUpdate }) => {
   const {
@@ -30,13 +31,10 @@ const EditProfile = ({ user, onClose, onUpdate }) => {
     setServerError('');
 
     try {
-      // Simulate API call for profile update
-      setTimeout(() => {
-        const updatedUser = { ...user, ...data, profileImageUrl: profileImage };
-        onUpdate(updatedUser);
-        setLoading(false);
-      }, 1000);
-
+      const response = await apiService.updateProfile(data);
+      const updatedUser = { ...user, ...response.user, profileImageUrl: profileImage };
+      onUpdate(updatedUser);
+      setLoading(false);
     } catch (error) {
       setServerError(error.response?.data?.message || 'Failed to update profile');
       setLoading(false);

@@ -6,6 +6,7 @@ import Footer from '../components/common/Footer';
 import ArtworkGrid from '../components/artwork/ArtworkGrid';
 import UserCard from '../components/user/UserCard';
 import Loading from '../components/common/Loading';
+import apiService from '../services/api';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,39 +30,22 @@ const SearchPage = () => {
   const performSearch = async () => {
     setLoading(true);
     try {
-      // API call for search
-      setTimeout(() => {
-        if (activeTab === 'artworks') {
-          setResults([
-            {
-              id: 1,
-              title: `Search Result: ${query}`,
-              imageUrl: '/api/placeholder/300/400',
-              artist: { id: 1, username: 'SearchArtist' },
-              likeCount: 67,
-              commentCount: 8,
-              isLiked: false,
-              isFavorited: false,
-              createdAt: '2024-01-15T10:30:00Z',
-              tags: [query.toLowerCase(), 'digital-art']
-            }
-          ]);
-        } else {
-          setUsers([
-            {
-              id: 1,
-              username: `${query}Artist`,
-              role: 'artist',
-              bio: `Artist specializing in ${query} artwork`,
-              artworkCount: 23,
-              followerCount: 456,
-              totalLikes: 1200,
-              isFollowing: false
-            }
-          ]);
+      if (activeTab === 'artworks') {
+        const response = await apiService.getArtworks({ 
+          search: query,
+          category: filters.category !== 'all' ? filters.category : undefined,
+          sortBy: filters.sortBy
+        });
+        if (response.success) {
+          setResults(response.data.artworks || []);
         }
-        setLoading(false);
-      }, 1000);
+      } else {
+        const response = await apiService.searchUsers(query);
+        if (response.success) {
+          setUsers(response.data.users || []);
+        }
+      }
+      setLoading(false);
     } catch (error) {
       console.error('Search error:', error);
       setLoading(false);

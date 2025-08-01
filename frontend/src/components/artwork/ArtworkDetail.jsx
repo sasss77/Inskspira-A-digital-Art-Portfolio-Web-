@@ -7,7 +7,9 @@ import FavoriteButton from '../interaction/FavoriteButton';
 import CommentSection from '../interaction/CommentSection';
 import Loading from '../common/Loading';
 import Button from '../common/Button';
-import ReportDialog from '../common/ReportDialog'; // <-- Import ReportDialog
+import ReportDialog from '../common/ReportDialog';
+import apiService from '../../services/api';
+import ErrorMessage from '../common/ErrorMessage';
 
 const ArtworkDetail = () => {
   const { artworkId } = useParams();
@@ -17,6 +19,7 @@ const ArtworkDetail = () => {
   const [loading, setLoading] = useState(true);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [relatedArtworks, setRelatedArtworks] = useState([]);
+  const [error, setError] = useState('');
 
   // State for Report Modal
   const [showReport, setShowReport] = useState(false);
@@ -28,43 +31,30 @@ const ArtworkDetail = () => {
 
   const fetchArtworkDetail = async () => {
     try {
-      // Simulate API call
-      setTimeout(() => {
-        setArtwork({
-          id: artworkId,
-          title: 'Mystic Digital Landscape',
-          description:
-            'A breathtaking digital landscape that captures the essence of a mystical forest at twilight. This piece explores the intersection of nature and fantasy, using vibrant purples and ethereal lighting to create an otherworldly atmosphere.',
-          imageUrl: `/api/placeholder/800/1000`,
-          artist: {
-            id: 1,
-            username: 'DigitalDreamer',
-            profileImage: null,
-            followerCount: 1247,
-          },
-          createdAt: '2024-01-15T10:30:00Z',
-          likeCount: 256,
-          commentCount: 42,
-          viewCount: 1847,
-          isLiked: false,
-          isFavorited: false,
-          tags: ['digital-art', 'landscape', 'fantasy', 'mystical', 'purple'],
-          dimensions: '3840x4800px',
-          fileSize: '12.4 MB',
-          software: 'Photoshop, Procreate',
-          isOwn: user?.id === 1, // Simulate with current user
+      setLoading(true);
+      setError('');
+      
+      const response = await apiService.getArtworkById(artworkId);
+      const artworkData = response.data.artwork;
+      
+      setArtwork(artworkData);
+      
+      // Fetch related artworks from the same artist
+      try {
+        const relatedResponse = await apiService.getArtworks({
+          artistId: artworkData.artist.id,
+          limit: 4
         });
-
-        setRelatedArtworks([
-          { id: 2, title: 'Forest Dreams', imageUrl: '/api/placeholder/300/380' },
-          { id: 3, title: 'Digital Sunset', imageUrl: '/api/placeholder/300/360' },
-          { id: 4, title: 'Purple Haze', imageUrl: '/api/placeholder/300/400' },
-        ]);
-
-        setLoading(false);
-      }, 1000);
+        const related = relatedResponse.data.artworks.filter(art => art.id !== parseInt(artworkId));
+        setRelatedArtworks(related.slice(0, 3));
+      } catch (relatedError) {
+        console.error('Error fetching related artworks:', relatedError);
+      }
+      
+      setLoading(false);
     } catch (error) {
       console.error('Error fetching artwork:', error);
+      setError(error.response?.data?.message || 'Failed to load artwork');
       setLoading(false);
     }
   };
@@ -80,24 +70,48 @@ const ArtworkDetail = () => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this artwork?')) {
       try {
-        // await artworkService.deleteArtwork(artworkId);
+        await apiService.deleteArtwork(artworkId);
         navigate('/profile');
       } catch (error) {
         console.error('Error deleting artwork:', error);
+        setError('Failed to delete artwork');
       }
     }
   };
 
-  // Report handler (simulate submit)
-  const handleReportSubmit = reportData => {
-    console.log('REPORTED ARTWORK:', artwork?.id, reportData);
-    // Integrate with real API later!
+  const handleReportSubmit = async (reportData) => {
+    try {
+      await apiService.createReport({
+        artworkId: artwork?.id,
+        reason: reportData.reason,
+        description: reportData.details
+      });
+      setShowReport(false);
+      // Optionally show a success message
+      console.log('Report submitted successfully');
+    } catch (error) {
+      console.error('Error reporting artwork:', error);
+      // Optionally show an error message to the user
+    }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <Loading size="large" text="Loading artwork..." />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
+        <div className="text-center">
+          <ErrorMessage message={error} />
+          <Button onClick={() => navigate('/')} className="mt-4">
+            Return to Home
+          </Button>
+        </div>
       </div>
     );
   }
@@ -173,8 +187,8 @@ const ArtworkDetail = () => {
                 <LikeButton artworkId={artwork.id} initialLiked={artwork.isLiked} initialCount={artwork.likeCount} />
                 <FavoriteButton artworkId={artwork.id} initialFavorited={artwork.isFavorited} />
                
-                {/* --- REPORT BUTTON (non-owners only) --- */}
-                {!artwork.isOwn && (
+                {/* --- REPORT BUTTON (logged-in non-owners only) --- */}
+                {user && !artwork.isOwn && (
                   <>
                     <Button
                       variant="outline"

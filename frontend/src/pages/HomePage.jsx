@@ -1,7 +1,10 @@
 // src/pages/HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
+import { useApi } from '../hooks/useApi';
+import apiService from '../services/api';
 import Header from '../components/common/Header';
 import Footer from '../components/common/Footer';
 import ArtworkGrid from '../components/artwork/ArtworkGrid';
@@ -10,12 +13,66 @@ import Button from '../components/common/Button';
 
 const HomePage = () => {
   const { user } = useAuth();
-  const [artworks, setArtworks] = useState([]);
-  const [featuredArtworks, setFeaturedArtworks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(true);
+  const { showError } = useNotification();
   const [filter, setFilter] = useState('recent');
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  
+  // Test backend connectivity
+  useEffect(() => {
+    const testBackend = async () => {
+      try {
+        console.log('🔍 Testing backend connectivity...');
+        const response = await fetch('http://localhost:5000/api/artworks?limit=1');
+        console.log('📡 Backend response status:', response.status);
+        console.log('📡 Backend response ok:', response.ok);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('📡 Backend response data:', data);
+        } else {
+          console.error('❌ Backend not responding properly');
+        }
+      } catch (err) {
+        console.error('❌ Backend connectivity test failed:', err);
+      }
+    };
+    testBackend();
+  }, []);
+
+  // Fetch artworks using the API
+  const { data: artworksData, loading, error, refetch } = useApi(
+    () => {
+      console.log('🎨 Fetching artworks with params:', { page, limit: 12, sortBy: filter });
+      return apiService.getArtworks({ page, limit: 12, sortBy: filter });
+    },
+    [filter, page]
+  );
+  
+  const artworks = artworksData?.data?.artworks || [];
+  
+  console.log('📊 HomePage Debug Info:');
+  console.log('- artworksData:', artworksData);
+  console.log('- artworks array:', artworks);
+  console.log('- artworks length:', artworks.length);
+  console.log('- loading:', loading);
+  console.log('- error:', error);
+  
+  // Fetch featured artworks separately
+  const { data: featuredData } = useApi(
+    () => {
+      console.log('⭐ Fetching featured artworks');
+      return apiService.getArtworks({ featured: 'true', limit: 3, sortBy: 'popular' });
+    },
+    []
+  );
+  
+  const featuredArtworks = featuredData?.data?.artworks || [];
+  
+  console.log('⭐ Featured artworks debug:');
+  console.log('- featuredData:', featuredData);
+  console.log('- featuredArtworks:', featuredArtworks);
+  console.log('- featuredArtworks length:', featuredArtworks.length);
 
   // Mouse tracking for interactive effects
   useEffect(() => {
@@ -27,116 +84,46 @@ const HomePage = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  // Handle API errors
   useEffect(() => {
-    fetchArtworks();
-    fetchFeaturedArtworks();
+    if (error) {
+      showError('Failed to load artworks. Please try again.');
+    }
+  }, [error, showError]);
+
+  // Handle artwork updates (like deletion)
+  const handleArtworkUpdate = () => {
+    refetch();
+  };
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
   }, [filter]);
 
-  const fetchArtworks = async () => {
-    try {
-      setTimeout(() => {
-        const mockArtworks = [
-          {
-            id: 1,
-            title: 'Mystic Forest Dreams',
-            imageUrl: '/api/placeholder/300/400',
-            artist: { id: 1, username: 'ArtisticSoul' },
-            likeCount: 124,
-            commentCount: 18,
-            isLiked: false,
-            isFavorited: false,
-            createdAt: '2024-01-15T10:30:00Z',
-            tags: ['digital-art', 'landscape', 'fantasy'],
-            description: 'A breathtaking journey through mystical realms'
-          },
-          {
-            id: 2,
-            title: 'Neon Cyberpunk Portrait',
-            imageUrl: '/api/placeholder/300/380',
-            artist: { id: 2, username: 'CyberArtist' },
-            likeCount: 89,
-            commentCount: 12,
-            isLiked: true,
-            isFavorited: false,
-            createdAt: '2024-01-14T15:45:00Z',
-            tags: ['portrait', 'cyberpunk', 'neon'],
-            description: 'Future meets present in this stunning portrait'
-          },
-          {
-            id: 3,
-            title: 'Abstract Color Symphony',
-            imageUrl: '/api/placeholder/300/420',
-            artist: { id: 3, username: 'ColorMaster' },
-            likeCount: 203,
-            commentCount: 31,
-            isLiked: false,
-            isFavorited: true,
-            createdAt: '2024-01-13T09:20:00Z',
-            tags: ['abstract', 'colorful', 'digital'],
-            description: 'Colors dancing in perfect harmony'
-          },
-          {
-            id: 4,
-            title: 'Dragon Warrior',
-            imageUrl: '/api/placeholder/300/450',
-            artist: { id: 4, username: 'FantasyMaker' },
-            likeCount: 156,
-            commentCount: 24,
-            isLiked: false,
-            isFavorited: false,
-            createdAt: '2024-01-12T18:10:00Z',
-            tags: ['fantasy', 'character', 'dragon'],
-            description: 'Epic tale of courage and magic'
-          }
-        ];
-
-        setArtworks(mockArtworks);
-        setLoading(false);
-      }, 1000);
-    } catch (error) {
-      console.error('Error fetching artworks:', error);
-      setLoading(false);
-    }
-  };
-
-  const fetchFeaturedArtworks = async () => {
-    try {
-      setTimeout(() => {
-        setFeaturedArtworks([
-          {
-            id: 10,
-            title: 'Digital Renaissance',
-            imageUrl: '/api/placeholder/800/500',
-            artist: { id: 5, username: 'MasterArtist' },
-            likeCount: 512,
-            description: 'A stunning blend of classical art with modern digital techniques, exploring the boundaries between tradition and innovation.'
-          },
-          {
-            id: 11,
-            title: 'Ocean Dreams',
-            imageUrl: '/api/placeholder/800/500',
-            artist: { id: 6, username: 'AquaDesigner' },
-            likeCount: 387,
-            description: 'Ethereal underwater scene with bioluminescent creatures dancing in the depths of imagination.'
-          },
-          {
-            id: 12,
-            title: 'Cosmic Wanderer',
-            imageUrl: '/api/placeholder/800/500',
-            artist: { id: 7, username: 'SpaceExplorer' },
-            likeCount: 445,
-            description: 'Journey through the cosmos with this mesmerizing space exploration artwork.'
-          }
-        ]);
-      }, 800);
-    } catch (error) {
-      console.error('Error fetching featured artworks:', error);
-    }
-  };
-
   const loadMoreArtworks = async () => {
-    // Implementation for loading more artworks
-    return new Promise(resolve => setTimeout(resolve, 1000));
+    if (!hasMore || loading) return;
+    
+    try {
+      const nextPage = page + 1;
+      console.log('📄 Loading more artworks, page:', nextPage);
+      const response = await apiService.getArtworks({ page: nextPage, limit: 12, sortBy: filter });
+      
+      console.log('📄 Load more response:', response);
+      
+      if (response.success && response.data.artworks && response.data.artworks.length > 0) {
+        setPage(nextPage);
+        setHasMore(response.data.pagination.hasMore);
+        console.log('📄 Successfully loaded more artworks');
+      } else {
+        setHasMore(false);
+        console.log('📄 No more artworks to load');
+      }
+    } catch (error) {
+      console.error('📄 Error loading more artworks:', error);
+      showError('Failed to load more artworks');
+    }
   };
 
   return (
@@ -432,11 +419,39 @@ const HomePage = () => {
 
           {/* Artwork Grid */}
           <div className="artwork-showcase">
+            {console.log('🎯 Rendering ArtworkGrid with:', {
+              artworksCount: artworks.length,
+              loading,
+              hasMore,
+              artworksData: artworks.slice(0, 2)
+            })}
+            
+            {/* Debug Info */}
+            {!loading && artworks.length === 0 && (
+              <div className="text-center py-16 bg-gray-800/20 rounded-2xl border border-gray-700/50">
+                <div className="text-6xl mb-6">🎨</div>
+                <h3 className="text-2xl font-bold text-white mb-4">No Artworks Found</h3>
+                <p className="text-gray-400 max-w-md mx-auto mb-6">
+                  We couldn't find any artworks. This might be due to:
+                </p>
+                <ul className="text-gray-500 text-sm space-y-2 max-w-sm mx-auto">
+                  <li>• Backend server not running</li>
+                  <li>• Database connection issues</li>
+                  <li>• No artworks in the database</li>
+                  <li>• API endpoint problems</li>
+                </ul>
+                <p className="text-purple-400 text-sm mt-4">
+                  Check the browser console for detailed logs
+                </p>
+              </div>
+            )}
+            
             <ArtworkGrid
               artworks={artworks}
               loading={loading}
               onLoadMore={loadMoreArtworks}
               hasMore={hasMore}
+              onArtworkUpdate={handleArtworkUpdate}
             />
           </div>
         </div>

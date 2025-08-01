@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ArtworkTable = ({ artworks, onDelete, onSaveEdit }) => {
+const ArtworkTable = ({ artworks, onDelete, onEdit }) => {
   const [editArtwork, setEditArtwork] = useState(null); // artwork object (for modal)
   const [modalMode, setModalMode] = useState('view'); // 'view' or 'edit'
   const [editFields, setEditFields] = useState({ title: '', description: '', tags: '' });
@@ -18,10 +18,8 @@ const ArtworkTable = ({ artworks, onDelete, onSaveEdit }) => {
 
   // Save edited artwork
   const handleSave = () => {
-    // Implement your update API or callback here!
-    if (onSaveEdit) {
-      onSaveEdit({
-        ...editArtwork,
+    if (onEdit) {
+      onEdit(editArtwork.id, {
         title: editFields.title,
         description: editFields.description,
         tags: editFields.tags.split(',').map(t => t.trim()).filter(Boolean)
@@ -51,8 +49,8 @@ const ArtworkTable = ({ artworks, onDelete, onSaveEdit }) => {
               <tr key={artwork.id} className="hover:bg-pink-900/10 border-b border-pink-700/20 transition">
                 <td className="py-2 px-3 text-white">{artwork.id}</td>
                 <td className="py-2 px-3 text-pink-200 font-semibold">{artwork.title}</td>
-                <td className="py-2 px-3 text-purple-200 font-semibold">{artwork.artist}</td>
-                <td className="py-2 px-3 text-blue-200">{artwork.likes}</td>
+                <td className="py-2 px-3 text-purple-200 font-semibold">{artwork.artist?.username || artwork.artistName || 'Unknown'}</td>
+                <td className="py-2 px-3 text-blue-200">{artwork.likesCount || 0}</td>
                 <td className="py-2 px-3 text-center">
                   <button
                     onClick={() => handleOpenModal(artwork, 'view')}
@@ -118,7 +116,7 @@ const ArtworkTable = ({ artworks, onDelete, onSaveEdit }) => {
                 </div>
                 <div>
                   <label className="block text-purple-300 font-semibold">Artist</label>
-                  <div className="font-medium text-purple-200">{editArtwork.artist}</div>
+                  <div className="font-medium text-purple-200">{editArtwork.artist?.username || editArtwork.artistName || 'Unknown'}</div>
                 </div>
                 <div>
                   <label className="block text-purple-300 font-semibold">Description</label>
