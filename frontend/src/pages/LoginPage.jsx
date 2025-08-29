@@ -11,6 +11,7 @@ import ErrorMessage from '../components/common/ErrorMessage';
   const LoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    
     const {
       register,
       handleSubmit,

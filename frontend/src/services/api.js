@@ -325,7 +325,7 @@ class ApiService {
     });
   }
 
-  async updateArtwork(id, data) {
+  async updateAdminArtwork(id, data) {
     return this.request(`/admin/artworks/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),

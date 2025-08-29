@@ -6,8 +6,10 @@ import Button from './Button';
 const REPORT_REASONS = [
   { value: '', label: 'Select a reason...' },
   { value: 'spam', label: 'Spam or Scam' },
-  { value: 'abuse', label: 'Abusive or Offensive' },
-  { value: 'copyright', label: 'Copyright Violation' },
+  { value: 'harassment', label: 'Abusive or Offensive' },
+  { value: 'inappropriate_content', label: 'Inappropriate Content' },
+  { value: 'copyright_violation', label: 'Copyright Violation' },
+  { value: 'fake_account', label: 'Fake Account' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -27,7 +29,7 @@ const ReportDialog = ({ isOpen, onClose, onSubmit, targetName }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={`Report Artwork`}>
+    <Modal isOpen={isOpen} onClose={onClose} title={"Report Artwork"}>
       {submitted ? (
         <div className="text-center py-10">
           <div className="text-5xl mb-2">✅</div>
@@ -53,7 +55,7 @@ const ReportDialog = ({ isOpen, onClose, onSubmit, targetName }) => {
             </label>
             <textarea
               className="w-full px-4 py-3 rounded-xl border-2 bg-black bg-opacity-60 border-purple-700 text-white focus:border-pink-500 focus:ring-2 focus:ring-pink-400 transition resize-none"
-              placeholder={`Explain briefly why you are reporting this artwork...`}
+              placeholder={"Explain briefly why you are reporting this artwork..."}
               rows={3}
               value={details}
               onChange={e => setDetails(e.target.value)}

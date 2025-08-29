@@ -15,9 +15,7 @@ const EditProfile = ({ user, onClose, onUpdate }) => {
     mode: 'onChange',
     defaultValues: {
       username: user.username || '',
-      bio: user.bio || '',
-      location: user.location || '',
-      website: user.website || ''
+      bio: user.bio || ''
     }
   });
 
@@ -31,8 +29,16 @@ const EditProfile = ({ user, onClose, onUpdate }) => {
     setServerError('');
 
     try {
-      const response = await apiService.updateProfile(data);
-      const updatedUser = { ...user, ...response.user, profileImageUrl: profileImage };
+      const formData = new FormData();
+      formData.append('username', data.username);
+      formData.append('bio', data.bio);
+      
+      if (fileInputRef.current?.files[0]) {
+        formData.append('profileImage', fileInputRef.current.files[0]);
+      }
+      
+      const response = await apiService.updateProfile(user.id, formData);
+      const updatedUser = { ...user, ...response.data.user, profileImageUrl: profileImage };
       onUpdate(updatedUser);
       setLoading(false);
     } catch (error) {
@@ -168,55 +174,7 @@ const EditProfile = ({ user, onClose, onUpdate }) => {
           </div>
 
 
-          {/* Location */}
-          <div className="mb-6">
-            <label className="block mb-2 text-purple-300 font-semibold text-base tracking-wide">
-              Location
-            </label>
-            <input
-              {...register('location')}
-              className="
-                w-full px-4 py-3 rounded-xl border-2
-                bg-gray-900/80 text-white font-medium
-                placeholder-gray-400
-                border-gray-700 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-300/20
-                hover:border-pink-400
-                transition-all duration-200
-              "
-              placeholder="e.g. San Francisco, CA"
-              autoComplete="off"
-            />
-          </div>
 
-          {/* Website */}
-          <div className="mb-6">
-            <label className="block mb-2 text-purple-300 font-semibold text-base tracking-wide">
-              Website
-            </label>
-            <input
-              type="url"
-              {...register('website', {
-                pattern: {
-                  value: /^https?:\/\/.+/,
-                  message: 'Please enter a valid URL'
-                }
-              })}
-              className={`
-                w-full px-4 py-3 rounded-xl border-2
-                bg-gray-900/80 text-white font-medium
-                placeholder-gray-400
-                border-gray-700 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300/20
-                hover:border-purple-400
-                transition-all duration-200
-                ${errors.website ? 'border-red-500 bg-red-500/10' : ''}
-              `}
-              placeholder="https://your-portfolio.com"
-              autoComplete="off"
-            />
-            {errors.website && (
-              <p className="text-red-400 font-medium mt-2">{errors.website.message}</p>
-            )}
-          </div>
 
 
           {/* Action Buttons */}

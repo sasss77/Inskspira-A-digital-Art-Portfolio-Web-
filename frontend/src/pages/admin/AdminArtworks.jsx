@@ -48,10 +48,7 @@ const AdminArtworks = () => {
   const handleEdit = async (artworkId, data) => {
     try {
       console.log('Attempting to update artwork:', artworkId, data);
-      const response = await apiService.request(`/admin/artworks/${artworkId}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
+      const response = await apiService.updateAdminArtwork(artworkId, data);
       console.log('Update response:', response);
       
       if (response.success) {

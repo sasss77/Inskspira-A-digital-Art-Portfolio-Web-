@@ -8,7 +8,7 @@ import {
   getArtworks,
   updateArtwork,
   updateArtworkStatus,
-  deleteArtwork,
+  deleteArtwork, 
   getReports,
   updateReportStatus
 } from '../controllers/adminController.js';

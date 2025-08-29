@@ -403,7 +403,7 @@ const HomePage = () => {
               {[
                 { id: 'recent', label: 'Recent', icon: '🕒' },
                 
-                ...(user ? [{ id: 'following', label: 'Following', icon: '👥' }] : [])
+                
               ].map((tab) => (
                 <button
                   key={tab.id}

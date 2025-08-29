@@ -15,24 +15,21 @@
     "sync-db": "node scripts/sync-database.js",
     "fix-profile": "node scripts/fix-user-profile.js",
     "test-admin": "node scripts/test-admin-login.js",
-    "fix-admin-password": "node scripts/fix-admin-password.js",
-    "test": "jest"
-
+    "fix-admin-password": "node scripts/fix-admin-password.js"
   },
   "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "express-rate-limit": "^7.1.5",
-    "express-validator": "^7.0.1",
-    "helmet": "^7.1.0",
-    "jest": "^30.0.5",
-    "jsonwebtoken": "^9.0.2",
-    "multer": "^1.4.5-lts.1",
+    "sequelize": "^6.35.2",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.35.2"
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",

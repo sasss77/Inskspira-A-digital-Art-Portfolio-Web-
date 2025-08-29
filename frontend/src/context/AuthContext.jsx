@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
         if (storedToken) {
           const userData = await apiService.getProfile();
           setUser(userData.data.user);
-        }
+        } 
       } catch (error) {
         console.error('Error loading stored session:', error);
         localStorage.removeItem('inkspira_token');
